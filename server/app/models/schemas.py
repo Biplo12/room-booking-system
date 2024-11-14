@@ -1,4 +1,9 @@
+from enum import Enum
 from marshmallow import Schema, fields
+
+class RoleEnum(Enum):
+    USER = 'user'
+    ADMIN = 'admin'
 
 class ConferenceRoomSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -9,4 +14,4 @@ class ConferenceRoomSchema(Schema):
 class UserSchema(Schema):
     id = fields.Int(dump_only=True)
     username = fields.Str(required=True)
-    role = fields.Enum('user', 'admin', required=True) # 'user' | 'admin'
+    role = fields.Enum(RoleEnum, required=True) # 'user' | 'admin'
