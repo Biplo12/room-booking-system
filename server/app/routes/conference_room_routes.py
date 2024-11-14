@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify, request
 from app import db
 from datetime import datetime
+import logging
+import bleach
+from sqlalchemy import and_, or_
 from marshmallow import ValidationError
 
 from app.models.conference_room import ConferenceRoom
@@ -9,55 +12,84 @@ from flask_jwt_extended import jwt_required
 from app.models.reservation import Reservation
 from app.routes.auth_routes import is_admin
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 conference_room_bp = Blueprint('conference_room', __name__)
 conference_room_schema = ConferenceRoomSchema()
 conference_rooms_schema = ConferenceRoomSchema(many=True)
 
+def sanitize_input(data):
+    """Sanitize input data to prevent XSS attacks"""
+    if isinstance(data, dict):
+        return {k: bleach.clean(str(v)) if isinstance(v, str) else v for k, v in data.items()}
+    elif isinstance(data, str):
+        return bleach.clean(data)
+    return data
+
 # -------
 @conference_room_bp.route('/rooms', methods=['GET'])
 def get_rooms():
-    rooms = ConferenceRoom.query.filter_by(is_deleted=False).all()
-    return jsonify({
-        'success': True,
-        'message': 'Rooms retrieved successfully',
-        'data': conference_rooms_schema.dump(rooms)
-    }), 200
+    try:
+        rooms = ConferenceRoom.query.filter_by(is_deleted=False).all()
+        return jsonify({
+            'success': True,
+            'message': 'Rooms retrieved successfully',
+            'data': conference_rooms_schema.dump(rooms)
+        }), 200
+    except Exception as e:
+        logger.error(f"Error retrieving rooms: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'Error retrieving rooms'
+        }), 500
 
 # -------
 @conference_room_bp.route('/rooms', methods=['POST'])
 @jwt_required()
 def create_room():
-    if not is_admin():
-        return jsonify({
-            'success': False,
-            'message': 'Admin privileges required'
-        }), 403
-
-    data = request.get_json()
-    if not data:
-        return jsonify({
-            'success': False,
-            'message': 'Invalid arguments'
-        }), 400
-
     try:
-        validated_data = conference_room_schema.load(data)
-    except ValidationError as err:
+        if not is_admin():
+            return jsonify({
+                'success': False,
+                'message': 'Admin privileges required'
+            }), 403
+
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'Invalid arguments'
+            }), 400
+
+        sanitized_data = sanitize_input(data)
+
+        try:
+            validated_data = conference_room_schema.load(sanitized_data)
+        except ValidationError as err:
+            return jsonify({
+                'success': False,
+                'message': 'Validation error',
+                'errors': err.messages
+            }), 400
+
+        room = ConferenceRoom(**validated_data)
+        db.session.add(room)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Room created successfully',
+            'data': conference_room_schema.dump(room)
+        }), 201
+
+    except Exception as e:
+        logger.error(f"Error creating room: {str(e)}")
+        db.session.rollback()
         return jsonify({
             'success': False,
-            'message': 'Validation error',
-            'errors': err.messages
-        }), 400
-
-    room = ConferenceRoom(**validated_data)
-    db.session.add(room)
-    db.session.commit()
-
-    return jsonify({
-        'success': True,
-        'message': 'Room created successfully',
-        'data': conference_room_schema.dump(room)
-    }), 201
+            'message': 'Error creating room'
+        }), 500
 
 # -------
 @conference_room_bp.route('/rooms/<int:room_id>', methods=['PUT'])
@@ -109,88 +141,121 @@ def delete_room(room_id):
 # -------
 @conference_room_bp.route('/rooms/<int:room_id>/availability', methods=['GET'])
 def check_availability(room_id):
-    start_time = request.args.get('start_time')
-    end_time = request.args.get('end_time')
-
-    if not start_time or not end_time:
-        return jsonify({
-            'success': False,
-            'message': 'Start time and end time are required'
-        }), 400
-    
     try:
-        start_time = datetime.fromisoformat(start_time)
-        end_time = datetime.fromisoformat(end_time)
-    except ValueError:
+        start_time = request.args.get('start_time')
+        end_time = request.args.get('end_time')
+
+        if not start_time or not end_time:
+            return jsonify({
+                'success': False,
+                'message': 'Start time and end time are required'
+            }), 400
+        
+        try:
+            start_time = datetime.fromisoformat(sanitize_input(start_time))
+            end_time = datetime.fromisoformat(sanitize_input(end_time))
+        except ValueError:
+            return jsonify({
+                'success': False,
+                'message': 'Invalid date format'
+            }), 400
+
+        conflicts = db.session.query(
+            db.exists().where(
+                and_(
+                    Reservation.room_id == room_id,
+                    Reservation.start_time < end_time,
+                    Reservation.end_time > start_time,
+                    Reservation.is_deleted == False
+                )
+            )
+        ).scalar()
+
+        return jsonify({
+            'success': True,
+            'message': 'Availability checked successfully',
+            'data': {'is_available': not conflicts}
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error checking availability: {str(e)}")
         return jsonify({
             'success': False,
-            'message': 'Invalid date format'
-        }), 400
-
-    conflicts = Reservation.query.filter(
-        Reservation.room_id == room_id,
-        Reservation.start_time < end_time,
-        Reservation.end_time > start_time
-    ).count()
-
-    return jsonify({
-        'success': True,
-        'message': 'Availability checked successfully',
-        'data': {'is_available': conflicts == 0}
-    }), 200
+            'message': 'Error checking availability'
+        }), 500
 
 # -------
 @conference_room_bp.route('/rooms/<int:room_id>/reserve', methods=['POST'])
 @jwt_required()
 def reserve_room(room_id):
-    data = request.get_json()
-    if not data:
-        return jsonify({
-            'success': False,
-            'message': 'Invalid arguments'
-        }), 400
-
-    start_time = data.get('start_time')
-    end_time = data.get('end_time')
-
-    if not start_time or not end_time:
-        return jsonify({
-            'success': False,
-            'message': 'Start time and end time are required'
-        }), 400
-
     try:
-        start_time = datetime.fromisoformat(start_time)
-        end_time = datetime.fromisoformat(end_time)
-    except ValueError:
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'Invalid arguments'
+            }), 400
+
+        sanitized_data = sanitize_input(data)
+        start_time = sanitized_data.get('start_time')
+        end_time = sanitized_data.get('end_time')
+
+        if not start_time or not end_time:
+            return jsonify({
+                'success': False,
+                'message': 'Start time and end time are required'
+            }), 400
+
+        try:
+            start_time = datetime.fromisoformat(start_time)
+            end_time = datetime.fromisoformat(end_time)
+        except ValueError:
+            return jsonify({
+                'success': False,
+                'message': 'Invalid date format'
+            }), 400
+
+        if start_time >= end_time:
+            return jsonify({
+                'success': False,
+                'message': 'Start time must be before end time'
+            }), 400
+
+        conflicts = db.session.query(
+            db.exists().where(
+                and_(
+                    Reservation.room_id == room_id,
+                    Reservation.start_time < end_time,
+                    Reservation.end_time > start_time,
+                    Reservation.is_deleted == False
+                )
+            )
+        ).scalar()
+
+        if conflicts:
+            return jsonify({
+                'success': False,
+                'message': 'Time conflict detected'
+            }), 409
+
+        reservation = Reservation(
+            room_id=room_id,
+            start_time=start_time,
+            end_time=end_time
+        )
+        
+        db.session.add(reservation)
+        db.session.commit()
+
+        return jsonify({
+            'success': True,
+            'message': 'Reservation created successfully'
+        }), 201
+
+    except Exception as e:
+        logger.error(f"Error creating reservation: {str(e)}")
+        db.session.rollback()
         return jsonify({
             'success': False,
-            'message': 'Invalid date format'
-        }), 400
-
-    if start_time >= end_time:
-        return jsonify({
-            'success': False,
-            'message': 'Start time must be before end time'
-        }), 400
-
-    conflicts = Reservation.query.filter(
-        Reservation.room_id == room_id,
-        Reservation.start_time < end_time,
-        Reservation.end_time > start_time
-    ).count()
-
-    if conflicts > 0:
-        return jsonify({
-            'success': False,
-            'message': 'Time conflict detected'
-        }), 409
-
-    reservation = Reservation(room_id=room_id, start_time=start_time, end_time=end_time)
-    db.session.add(reservation)
-    db.session.commit()
-
-    return jsonify({
-        'success': True,
-        'message': 'Reservation created successfully'
-    }), 201
+            'message': 'Error creating reservation'
+        }), 500
