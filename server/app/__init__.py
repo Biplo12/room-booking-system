@@ -18,4 +18,7 @@ def create_app(config_class='app.config.DevelopmentConfig'):
     migrate.init_app(app, db)
     jwt.init_app(app)
 
+    from app.routes import register_routes
+    register_routes(app)
+
     return app
