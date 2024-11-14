@@ -6,3 +6,6 @@ class ConferenceRoom(db.Model):
     capacity = db.Column(db.Integer, nullable=False)
     equipment = db.Column(db.String(255), nullable=True)
     is_deleted = db.Column(db.Boolean, default=False)
+    __table_args__ = (
+        db.Index('ix_conference_room_name', 'name'),
+    )
