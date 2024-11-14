@@ -7,6 +7,8 @@ class Config:
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    API_PREFIX = '/api/v1'
+
 class DevelopmentConfig(Config):
     DEBUG = True
 

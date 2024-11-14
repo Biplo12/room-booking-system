@@ -1,2 +1,62 @@
 /.env.local
+/.env
 .DS_Store
+
+# Python compiled files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.cache
+
+# Virtual environment directories
+venv/
+ENV/
+env/
+.venv/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# IDE / Editor specific
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Flask specific
+instance/
+*.pid
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+
+# Pytest
+.pytest_cache/
