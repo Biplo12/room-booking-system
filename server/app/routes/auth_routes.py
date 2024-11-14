@@ -53,7 +53,6 @@ def register():
             'message': 'Username and password are required'
         }), 400
 
-    # Check if username already exists
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
         return jsonify({
@@ -61,7 +60,6 @@ def register():
             'message': 'Username already exists'
         }), 409
 
-    # Validate password
     is_valid, message = validate_password(password)
     if not is_valid:
         return jsonify({
@@ -69,7 +67,6 @@ def register():
             'message': message
         }), 400
 
-    # Create new user
     hashed_password = generate_password_hash(password)
     new_user = User(username=username, password=hashed_password)
     

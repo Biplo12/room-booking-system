@@ -3,7 +3,7 @@ from app import db
 from datetime import datetime
 import logging
 import bleach
-from sqlalchemy import and_, or_
+from sqlalchemy import and_
 from marshmallow import ValidationError
 
 from app.models.conference_room import ConferenceRoom
@@ -31,11 +31,31 @@ def sanitize_input(data):
 @conference_room_bp.route('/rooms', methods=['GET'])
 def get_rooms():
     try:
-        rooms = ConferenceRoom.query.filter_by(is_deleted=False).all()
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        
+        per_page = min(per_page, 100)
+        
+        pagination = ConferenceRoom.query.filter_by(is_deleted=False).paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+        
         return jsonify({
             'success': True,
             'message': 'Rooms retrieved successfully',
-            'data': conference_rooms_schema.dump(rooms)
+            'data': {
+                'items': conference_rooms_schema.dump(pagination.items),
+                'pagination': {
+                    'total_items': pagination.total,
+                    'total_pages': pagination.pages,
+                    'current_page': page,
+                    'per_page': per_page,
+                    'has_next': pagination.has_next,
+                    'has_prev': pagination.has_prev
+                }
+            }
         }), 200
     except Exception as e:
         logger.error(f"Error retrieving rooms: {str(e)}")
