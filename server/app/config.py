@@ -1,6 +1,7 @@
 import os
 
 API_PREFIX = '/api/v1'
+AUTH_PREFIX = f'{API_PREFIX}/auth'
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY')
