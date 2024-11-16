@@ -18,7 +18,7 @@ migrate = Migrate()
 jwt = JWTManager()
 
 def create_app(config_class='app.config.DevelopmentConfig'):
-    if os.getenv('SENTRY_DSN'):
+    if os.getenv('SENTRY_DSN') and not os.getenv('FLASK_TESTING'): # If running tests, don't initialize Sentry
         sentry_sdk.init(
             dsn=os.getenv('SENTRY_DSN'),
             integrations=[FlaskIntegration()],
@@ -27,7 +27,7 @@ def create_app(config_class='app.config.DevelopmentConfig'):
             environment=os.getenv('FLASK_ENV', 'development')
         )
     else:
-        logger.warning("Sentry is not configured")
+        logger.warning("Sentry is not configured or running in test mode")
 
     app = Flask(__name__)
     app.config.from_object(config_class)

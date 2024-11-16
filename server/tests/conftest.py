@@ -3,6 +3,7 @@ import pytest
 from pathlib import Path
 from werkzeug.security import generate_password_hash
 from flask_jwt_extended import create_access_token
+import os
 
 root_dir = str(Path(__file__).parent.parent)
 sys.path.insert(0, root_dir)
@@ -21,11 +22,15 @@ def app():
         'JWT_SECRET_KEY': 'test-key'
     })
     
+    os.environ['FLASK_TESTING'] = 'true'
+    
     with app.app_context():
         db.create_all()
         yield app
         db.session.remove()
         db.drop_all()
+    
+    os.environ.pop('FLASK_TESTING', None)
 
 @pytest.fixture
 def client(app):
