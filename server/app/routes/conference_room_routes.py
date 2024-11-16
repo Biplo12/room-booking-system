@@ -118,6 +118,20 @@ def create_room():
                 'success': False,
                 'message': 'Error creating room'
             }), 500
+        
+# -------
+@conference_room_bp.route('/<int:room_id>', methods=['GET'])
+def get_room_by_id(room_id: int):
+    """Get a specific conference room by ID."""
+    room = ConferenceRoom.query.get(room_id)
+    
+    if not room:
+        return jsonify({
+            'success': False,
+            'message': f'Conference room with id {room_id} not found'
+        }), 404
+    
+    return jsonify(conference_room_schema.dump(room)), 200
 
 # -------
 @conference_room_bp.route('/rooms/<int:room_id>', methods=['PUT'])
@@ -325,3 +339,7 @@ def reserve_room(room_id):
                 'success': False,
                 'message': 'Error creating reservation'
             }), 500
+        
+
+
+        

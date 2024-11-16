@@ -1,8 +1,8 @@
-"""Pipeplines and Sentry
+"""Initial migration
 
-Revision ID: 33262fb5320f
-Revises: c170d010c568
-Create Date: 2024-11-16 17:37:21.122886
+Revision ID: cead1f16bbce
+Revises: 
+Create Date: 2024-11-16 21:56:47.623152
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '33262fb5320f'
-down_revision = 'c170d010c568'
+revision = 'cead1f16bbce'
+down_revision = None
 branch_labels = None
 depends_on = None
 

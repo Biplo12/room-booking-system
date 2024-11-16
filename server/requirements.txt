@@ -12,3 +12,4 @@ gunicorn==21.2.0
 psycopg2-binary==2.9.9 
 bleach==6.1.0
 sentry-sdk[flask]==1.39.1
+flask_swagger_ui==4.11.1
