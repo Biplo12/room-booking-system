@@ -5,10 +5,11 @@ from app import db
 from app.models.user import User
 import re
 import sentry_sdk
+from typing import Tuple
 
 auth_bp = Blueprint('auth', __name__)
 
-def validate_password(password: str) -> tuple[bool, str]:
+def validate_password(password: str) -> Tuple[bool, str]:
     """Validate password strength"""
     if len(password) < 8:
         return False, "Password must be at least 8 characters long"
