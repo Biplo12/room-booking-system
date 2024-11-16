@@ -170,3 +170,40 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and testing. The pipeline:
+
+1. Triggers on:
+
+   - Push to any branch (affecting server files)
+   - Pull requests (affecting server files)
+
+2. Test Environment:
+
+   - Ubuntu latest
+   - Python 3.8
+   - PostgreSQL 14
+
+3. Pipeline Steps:
+   - Sets up Python and PostgreSQL
+   - Installs dependencies
+   - Runs pytest with coverage reporting
+   - Uploads coverage reports to Codecov
+
+### Workflow Status
+
+[![Python Tests](https://github.com/Biplo12/room-booking-system/actions/workflows/python-tests.yml/badge.svg)](https://github.com/Biplo12/room-booking-system/actions/workflows/python-tests.yml)
+
+### Local Testing
+
+To run the same tests locally:
+
+```bash
+# Install test dependencies
+pip install pytest pytest-cov
+
+# Run tests with coverage
+pytest --cov=app tests/ -v
+```
