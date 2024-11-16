@@ -48,7 +48,7 @@ jobs:
           JWT_SECRET_KEY: test-secret-key
           SECRET_KEY: test-secret-key
         run: |
-          pytest --cov=app ./server/tests/ -v
+          pytest --cov=app ./tests/ -v
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
