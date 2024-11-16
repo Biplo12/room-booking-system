@@ -139,7 +139,13 @@ def update_room(room_id):
                 }), 400
 
             with sentry_sdk.start_span(op="db.write", description="update_room"):
-                room = ConferenceRoom.query.get_or_404(room_id)
+                room = ConferenceRoom.query.filter_by(id=room_id, is_deleted=False).first()
+                if not room:
+                    return jsonify({
+                        'success': False,
+                        'message': 'Room not found'
+                    }), 404
+
                 for key, value in data.items():
                     setattr(room, key, value)
                 db.session.commit()
