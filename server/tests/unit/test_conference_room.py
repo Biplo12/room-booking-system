@@ -42,8 +42,8 @@ def test_create_room_invalid_data(client, admin_auth_headers):
 
 def test_create_room_validation_error(client, admin_auth_headers):
     data = {
-        "name": "",  # Invalid empty name
-        "capacity": "invalid",  # Invalid capacity type
+        "name": "",
+        "capacity": "invalid",
         "equipment": "Projector"
     }
     response = client.post('/api/v1/rooms',
@@ -54,7 +54,6 @@ def test_create_room_validation_error(client, admin_auth_headers):
     assert 'errors' in response.json
 
 def test_update_room(client, admin_auth_headers):
-    # First create a room
     create_data = {
         "name": "Test Room",
         "capacity": 10,

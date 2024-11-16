@@ -36,6 +36,7 @@ pip install -r requirements.txt
 SECRET_KEY=your-secret-key
 DATABASE_URL=postgresql://username:password@localhost:5432/database_name
 JWT_SECRET_KEY=your-secret-key
+SENTRY_DSN=your-sentry-dsn
 
 ## Database Setup
 
