@@ -2,6 +2,7 @@
 
 import { useBookingStore } from "@/store/bookingStore";
 import { RoomCard } from "./room-card";
+import { RoomFilter } from "./room-filter";
 
 export function RoomList() {
   const { rooms } = useBookingStore();
@@ -11,6 +12,8 @@ export function RoomList() {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Available Rooms</h2>
       </div>
+      <RoomFilter />
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {rooms.map((room) => (
           <RoomCard key={room.id} room={room} />
