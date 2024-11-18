@@ -1,15 +1,17 @@
-name: Python Tests
+name: CI/CD Pipeline
 
 on:
   push:
     paths:
       - "server/**"
+      - "client/**"
   pull_request:
     paths:
       - "server/**"
+      - "client/**"
 
 jobs:
-  test:
+  test-backend:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -54,3 +56,32 @@ jobs:
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Build Next.js app
+        working-directory: ./client
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: client/.next
+          retention-days: 7

@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 
 export function useSearch() {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const searchParams = pathname.split("?")[1];
 
-  const [searchTerm, setSearchTerm] = useState(
-    searchParams.get("search") || ""
-  );
+  const [searchTerm, setSearchTerm] = useState(searchParams || "");
 
   const debouncedSearchTerm = useDebounce(searchTerm);
 

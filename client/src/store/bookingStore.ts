@@ -14,7 +14,7 @@ interface BookingStore {
 export const useBookingStore = create<BookingStore>((set) => ({
   rooms: [
     {
-      id: "1",
+      id: 1,
       name: "Executive Suite",
       capacity: 12,
       equipment: ["Projector", "Whiteboard", "Video Conference"],
@@ -22,7 +22,7 @@ export const useBookingStore = create<BookingStore>((set) => ({
       imageUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c",
     },
     {
-      id: "2",
+      id: 2,
       name: "Brainstorm Room",
       capacity: 6,
       equipment: ["Whiteboard", "TV Screen"],
@@ -30,7 +30,7 @@ export const useBookingStore = create<BookingStore>((set) => ({
       imageUrl: "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
     },
     {
-      id: "3",
+      id: 3,
       name: "Innovation Lab",
       capacity: 8,
       equipment: ["Smart Board", "Video Conference"],
@@ -38,7 +38,7 @@ export const useBookingStore = create<BookingStore>((set) => ({
       imageUrl: "https://images.unsplash.com/photo-1497366754035-f200968a6e72",
     },
     {
-      id: "4",
+      id: 4,
       name: "Focus Room",
       capacity: 4,
       equipment: ["TV Screen", "Whiteboard"],

@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SearchBar } from "./Partials/search-bar";
 import { FilterSheet } from "./Partials/filter-sheet";
@@ -8,16 +8,17 @@ import { ActiveFilters } from "./Partials/active-filters";
 import { FilterValues } from "./types";
 
 export function RoomFilter() {
-  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const searchParams = pathname.split("?")[1];
   const [selectedFilters, setSelectedFilters] = useState<FilterValues>({
-    capacity: searchParams.get("capacity") || "",
-    equipment: searchParams.get("equipment") || "",
+    capacity: searchParams?.split("capacity=")[1] || "",
+    equipment: searchParams?.split("equipment=")[1] || "",
   });
 
   useEffect(() => {
     setSelectedFilters({
-      capacity: searchParams.get("capacity") || "",
-      equipment: searchParams.get("equipment") || "",
+      capacity: searchParams?.split("capacity=")[1] || "",
+      equipment: searchParams?.split("equipment=")[1] || "",
     });
   }, [searchParams]);
 
