@@ -1,12 +1,14 @@
 "use client";
 
-import { Room } from "@/interfaces";
+import { Room, Reservation } from "@/interfaces";
 import { create } from "zustand";
 
 interface BookingStore {
   rooms: Room[];
+  reservations: Reservation[];
 
   setRooms: (rooms: Room[]) => void;
+  setReservations: (reservations: Reservation[]) => void;
 }
 
 export const useBookingStore = create<BookingStore>((set) => ({
@@ -44,5 +46,7 @@ export const useBookingStore = create<BookingStore>((set) => ({
       imageUrl: "https://images.unsplash.com/photo-1497366412874-3415097a27e7",
     },
   ],
+  reservations: [],
   setRooms: (rooms) => set({ rooms }),
+  setReservations: (reservations) => set({ reservations }),
 }));
