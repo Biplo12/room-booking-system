@@ -7,6 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { TimePicker } from "./time-picker";
+import { CalendarView } from "./calendar-view";
 
 interface BookingCalendarProps {
   selectedDate: Date;
@@ -29,7 +31,14 @@ export function BookingCalendar({
           Choose your preferred date and time slot
         </CardDescription>
       </CardHeader>
-      <CardContent></CardContent>
+      <CardContent>
+        <CalendarView selectedDate={selectedDate} onDateSelect={onDateSelect} />
+        <TimePicker
+          selectedDate={selectedDate}
+          selectedTime={selectedTime}
+          onTimeSelect={onTimeSelect}
+        />
+      </CardContent>
     </Card>
   );
 }

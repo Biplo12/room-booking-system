@@ -9,6 +9,7 @@ interface BookingStore {
 
   setRooms: (rooms: Room[]) => void;
   setReservations: (reservations: Reservation[]) => void;
+  addReservation: (reservation: Reservation) => void;
 }
 
 export const useBookingStore = create<BookingStore>((set) => ({
@@ -49,4 +50,8 @@ export const useBookingStore = create<BookingStore>((set) => ({
   reservations: [],
   setRooms: (rooms) => set({ rooms }),
   setReservations: (reservations) => set({ reservations }),
+  addReservation: (reservation) =>
+    set((state) => ({
+      reservations: [...state.reservations, reservation],
+    })),
 }));

@@ -1,5 +1,6 @@
 "use client";
 
+import { ReservationForm } from "@/components/reservation-form";
 import {
   Card,
   CardContent,
@@ -7,20 +8,32 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Room } from "@/interfaces";
 
 interface BookingFormProps {
+  room: Room;
   selectedDate: Date;
   selectedTime: string | null;
 }
 
-export function BookingForm({ selectedDate, selectedTime }: BookingFormProps) {
+export function BookingForm({
+  room,
+  selectedDate,
+  selectedTime,
+}: BookingFormProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Book Room</CardTitle>
         <CardDescription>Complete your reservation</CardDescription>
       </CardHeader>
-      <CardContent></CardContent>
+      <CardContent>
+        <ReservationForm
+          room={room}
+          selectedDate={selectedDate}
+          selectedTime={selectedTime}
+        />
+      </CardContent>
     </Card>
   );
 }

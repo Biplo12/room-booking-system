@@ -48,6 +48,7 @@ export default function BookRoom() {
         <div className="space-y-6 lg:sticky lg:top-24">
           <RoomDetails room={selectedRoom} />
           <BookingForm
+            room={selectedRoom}
             selectedDate={selectedDate}
             selectedTime={selectedTime}
           />
