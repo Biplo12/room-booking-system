@@ -10,6 +10,7 @@ interface BookingStore {
   setRooms: (rooms: Room[]) => void;
   setReservations: (reservations: Reservation[]) => void;
   addReservation: (reservation: Reservation) => void;
+  cancelReservation: (reservationId: number) => void;
 }
 
 export const useBookingStore = create<BookingStore>((set) => ({
@@ -53,5 +54,12 @@ export const useBookingStore = create<BookingStore>((set) => ({
   addReservation: (reservation) =>
     set((state) => ({
       reservations: [...state.reservations, reservation],
+    })),
+
+  cancelReservation: (reservationId) =>
+    set((state) => ({
+      reservations: state.reservations.filter(
+        (r) => r.id !== Number(reservationId)
+      ),
     })),
 }));
