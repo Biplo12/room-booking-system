@@ -21,7 +21,7 @@ export default function BookingSuccess() {
   if (!latestBooking) return null;
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-24">
       <div className="max-w-2xl mx-auto text-center">
         <SuccessHeader />
         <ReservationDetails reservation={latestBooking} />

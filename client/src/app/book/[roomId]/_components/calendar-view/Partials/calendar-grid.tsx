@@ -43,7 +43,6 @@ export function CalendarGrid({
           <DayCell
             key={day.toString()}
             day={day}
-            view={view}
             currentDate={currentDate}
             selectedDate={selectedDate}
             onDateSelect={onDateSelect}

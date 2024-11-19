@@ -1,19 +1,18 @@
 import { Button } from "@/components/ui/button";
+import { Reservation } from "@/interfaces";
 import { cn } from "@/lib/utils";
 import { format, isEqual, isSameMonth, isToday } from "date-fns";
 
 interface DayCellProps {
   day: Date;
-  view: "week" | "month";
   currentDate: Date;
   selectedDate: Date;
   onDateSelect: (date: Date) => void;
-  reservations: any[];
+  reservations: Reservation[];
 }
 
 export function DayCell({
   day,
-  view,
   currentDate,
   selectedDate,
   onDateSelect,
@@ -34,7 +33,7 @@ export function DayCell({
       )}
       onClick={() => onDateSelect(day)}
     >
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full justify-center items-center">
         <time
           dateTime={format(day, "yyyy-MM-dd")}
           className={cn(
@@ -44,21 +43,13 @@ export function DayCell({
         >
           {format(day, "d")}
         </time>
+
         {dayReservations.length > 0 && (
           <div className="mt-1">
-            <div className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs">
-              {dayReservations.length} booking
+            <div className="inline-flex items-center justify-center rounded-full bg-primary/10 px-2 py-1 text-xs">
+              {dayReservations.length} Booking
               {dayReservations.length !== 1 ? "s" : ""}
             </div>
-            {view === "week" &&
-              dayReservations.map((res) => (
-                <div
-                  key={res.id}
-                  className="mt-1 text-xs truncate text-muted-foreground"
-                >
-                  {format(res.startTime, "h:mm a")} - {res.title}
-                </div>
-              ))}
           </div>
         )}
       </div>
