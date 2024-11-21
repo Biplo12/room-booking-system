@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 from dotenv import load_dotenv
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
@@ -24,6 +25,14 @@ API_URL = "/static/swagger.json"
 def create_app(config_class='app.config.DevelopmentConfig'):
     app = Flask(__name__, static_url_path='/static', static_folder='static')
     app.config.from_object(config_class)
+    
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": app.config['CORS_ORIGINS'].split(','),
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"]
+        }
+    })
     
     db.init_app(app)
     migrate.init_app(app, db)

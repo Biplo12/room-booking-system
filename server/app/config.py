@@ -10,6 +10,8 @@ class Config:
     SENTRY_DSN = os.getenv('SENTRY_DSN')
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS', '*')
 
 class DevelopmentConfig(Config):
     DEBUG = True
