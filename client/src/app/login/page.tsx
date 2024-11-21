@@ -25,7 +25,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { useLogin } from "@/hooks/auth";
+import Spinner from "@/components/spinner";
 
 const formSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -33,8 +34,7 @@ const formSchema = z.object({
 });
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const login = useLogin();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,16 +45,7 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    setIsLoading(true);
-    try {
-      console.log(values);
-      toast.success("Logged in successfully");
-      router.push("/");
-    } catch (error) {
-      toast.error("Invalid credentials");
-    } finally {
-      setIsLoading(false);
-    }
+    login.mutate(values);
   };
 
   return (
@@ -102,8 +93,19 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign In"}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={login.isPending}
+              >
+                {login.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <Spinner />
+                    <span>Signing in...</span>
+                  </div>
+                ) : (
+                  "Sign In"
+                )}
               </Button>
             </form>
           </Form>

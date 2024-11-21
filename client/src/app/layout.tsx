@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/footer";
 import { Toaster } from "sonner";
+import { QueryProvider } from "@/providers/query";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +24,9 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Toaster />
-        <div className="flex-1">{children}</div>
+        <QueryProvider>
+          <div className="flex-1">{children}</div>
+        </QueryProvider>
         <Footer />
       </body>
     </html>

@@ -25,12 +25,27 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { useRegister } from "@/hooks/auth";
+import Spinner from "@/components/spinner";
 
 const formSchema = z
   .object({
     username: z.string().min(3, "Username must be at least 3 characters"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .refine((password) => /[A-Z]/.test(password), {
+        message: "Password must contain at least one uppercase letter",
+      })
+      .refine((password) => /[a-z]/.test(password), {
+        message: "Password must contain at least one lowercase letter",
+      })
+      .refine((password) => /\d/.test(password), {
+        message: "Password must contain at least one number",
+      })
+      .refine((password) => /[!@#$%^&*(),.?":{}|<>]/.test(password), {
+        message: "Password must contain at least one special character",
+      }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -39,8 +54,7 @@ const formSchema = z
   });
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const register = useRegister();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,16 +66,7 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    setIsLoading(true);
-    try {
-      console.log(values);
-      toast.success("Account created successfully");
-      router.push("/login");
-    } catch (error) {
-      toast.error("Failed to create account");
-    } finally {
-      setIsLoading(false);
-    }
+    register.mutate(values);
   };
 
   return (
@@ -126,8 +131,19 @@ export default function RegisterPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating account..." : "Create Account"}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={register.isPending}
+              >
+                {register.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <Spinner />
+                    <span>Creating account...</span>
+                  </div>
+                ) : (
+                  "Create Account"
+                )}
               </Button>
             </form>
           </Form>

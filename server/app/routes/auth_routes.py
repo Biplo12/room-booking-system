@@ -115,9 +115,12 @@ def login():
                 'success': True,
                 'message': 'Login successful',
                 'data': {
+                    'user': {
+                        'id': user.id,
+                        'username': user.username,
+                        'role': user.role
+                    },
                     'access_token': access_token,
-                    'username': user.username,
-                    'role': user.role
                 }
             }), 200
 
