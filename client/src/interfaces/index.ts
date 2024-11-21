@@ -2,8 +2,8 @@ export interface Room {
   id: number;
   name: string;
   capacity: number;
-  equipment: string[];
   location: string;
+  equipment: string[];
   imageUrl: string;
 }
 

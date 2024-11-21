@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useBookingStore } from "@/store/bookingStore";
 import { toast } from "sonner";
-import { Room } from "@/interfaces";
+import { Reservation, Room } from "@/interfaces";
 
 const formSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -65,7 +65,7 @@ export function ReservationForm({
 
       const reservation = {
         id: Math.floor(Math.random() * 1000),
-        roomId: room.id,
+        roomId: Number(room.id),
         userId: "user-1",
         startTime,
         endTime,

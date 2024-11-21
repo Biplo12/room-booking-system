@@ -19,7 +19,7 @@ export function BookingItem({
 }: BookingItemProps) {
   const { rooms } = useBookingStore();
   const canCancel = useCanCancel(booking.startTime);
-  const room = rooms.find((r) => r.id === booking.roomId);
+  const room = rooms.find((r) => r.id === Number(booking.roomId));
 
   return (
     <div
