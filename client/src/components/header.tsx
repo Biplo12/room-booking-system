@@ -8,11 +8,14 @@ import { cn } from "@/lib/utils";
 export function Header() {
   const pathname = usePathname();
 
+  const isActive = (href: string) => pathname === href;
+
   const navItems = [
     { label: "Rooms", href: "/" },
     { label: "Admin", href: "/admin" },
     { label: "My Bookings", href: "/user" },
   ];
+
   return (
     <header className="border-b">
       <div className="container mx-auto px-4 py-4">
@@ -27,8 +30,8 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "text-sm hover:text-primary",
-                  pathname === item.href && "text-primary"
+                  "text-sm hover:text-primary text-muted-foreground",
+                  isActive(item.href) && "text-primary"
                 )}
               >
                 {item.label}

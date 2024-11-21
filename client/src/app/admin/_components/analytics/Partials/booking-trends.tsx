@@ -55,7 +55,9 @@ export function BookingTrends({ reservations }: BookingTrendsProps) {
                 axisLine={false}
                 tickFormatter={(value) => `${value}`}
               />
-              <Tooltip />
+              <Tooltip
+                contentStyle={{ backgroundColor: "hsl(var(--background))" }}
+              />
               <Line
                 type="monotone"
                 dataKey="bookings"

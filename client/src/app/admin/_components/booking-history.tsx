@@ -11,11 +11,13 @@ export function BookingHistory() {
 
   if (reservations.length === 0) {
     return (
-      <EmptyState
-        title="No Bookings Yet"
-        description="Bookings will appear here once rooms are reserved"
-        icon="Calendar"
-      />
+      <div className="mt-10">
+        <EmptyState
+          title="No Bookings Yet"
+          description="Bookings will appear here once rooms are reserved"
+          icon="Calendar"
+        />
+      </div>
     );
   }
 
