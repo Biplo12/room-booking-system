@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Room } from "@/interfaces";
 import { Button } from "@/components/ui/button";
 import { useBookingStore } from "@/store/bookingStore";
+import { useUserStore } from "@/store/userStore";
 import { RoomImage } from "./Partials/room-image";
 import { RoomInfo } from "./Partials/room-info";
 import { RoomAvailability } from "./Partials/room-availability";
@@ -15,9 +16,14 @@ interface RoomCardProps {
 export function RoomCard({ room }: RoomCardProps) {
   const router = useRouter();
   const { reservations } = useBookingStore();
+  const { isAuthenticated } = useUserStore();
 
   const handleBookNow = () => {
-    router.push(`/book/${room.id}`);
+    if (!isAuthenticated) {
+      router.push(`/login?from=/book/${room.id}`);
+    } else {
+      router.push(`/book/${room.id}`);
+    }
   };
 
   const todayReservations = reservations.filter(

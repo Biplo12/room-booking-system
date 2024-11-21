@@ -2,19 +2,41 @@
 
 import Link from "next/link";
 import { BookCheck } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useUserStore } from "@/store/userStore";
+import { Button } from "./ui/button";
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isAuthenticated, logout } = useUserStore();
 
   const isActive = (href: string) => pathname === href;
 
-  const navItems = [
-    { label: "Rooms", href: "/" },
-    { label: "Admin", href: "/admin" },
-    { label: "My Bookings", href: "/user" },
-  ];
+  const getNavItems = () => {
+    const items = [{ label: "Rooms", href: "/" }];
+
+    if (isAuthenticated) {
+      items.push({ label: "My Bookings", href: "/user" });
+      if (user?.role === "admin") {
+        items.push({ label: "Admin", href: "/admin" });
+      }
+    }
+
+    return items;
+  };
+
+  const handleLogin = () => {
+    router.push("/login");
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
+
+  const navItems = getNavItems();
 
   return (
     <header className="border-b">
@@ -24,20 +46,29 @@ export function Header() {
             <BookCheck className="h-6 w-6" />
             <h1 className="text-xl font-bold">Conference Room Booking</h1>
           </Link>
-          <nav className="flex items-center space-x-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "text-sm hover:text-primary text-muted-foreground",
-                  isActive(item.href) && "text-primary"
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="flex items-center space-x-4">
+            <nav className="flex items-center space-x-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "text-sm hover:text-primary text-muted-foreground",
+                    isActive(item.href) && "text-primary"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            {isAuthenticated ? (
+              <Button variant="outline" onClick={handleLogout}>
+                Logout
+              </Button>
+            ) : (
+              <Button onClick={handleLogin}>Login</Button>
+            )}
+          </div>
         </div>
       </div>
     </header>
