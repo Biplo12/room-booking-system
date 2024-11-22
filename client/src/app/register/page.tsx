@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRegister } from "@/hooks/auth";
 import Spinner from "@/components/spinner";
+import { useUserStore } from "@/store/userStore";
 
 const formSchema = z
   .object({
@@ -54,7 +55,15 @@ const formSchema = z
   });
 
 export default function RegisterPage() {
+  const router = useRouter();
   const register = useRegister();
+  const { isAuthenticated } = useUserStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

@@ -6,37 +6,50 @@ import { RoomDetails } from "./_components/room-details";
 import { BookingForm } from "./_components/booking-form";
 import { useBookingStore } from "@/store/bookingStore";
 import { usePathname, useRouter } from "next/navigation";
-import Spinner from "@/components/spinner";
 import { BackButton } from "@/components/back-button";
+import { useRoom } from "@/hooks/useRooms";
+import { BookingCalendarSkeleton } from "./_components/booking-calendar/booking-calendar-skeleton";
+import { RoomDetailsSkeleton } from "./_components/room-details/room-details-skeleton";
+import { BookingFormSkeleton } from "./_components/booking-form/booking-form-skeleton";
 
 export default function BookRoom() {
   const router = useRouter();
   const pathname = usePathname();
+  const roomId = Number(pathname.split("/").pop());
+
+  const { isLoading } = useRoom(roomId);
   const { rooms } = useBookingStore();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
-  const roomId = pathname.split("/").pop();
-
-  const selectedRoom = rooms.find((r) => r.id === Number(roomId));
+  const selectedRoom = rooms.find((r) => r.id === roomId);
 
   useEffect(() => {
-    if (!selectedRoom) {
+    if (!isLoading && !selectedRoom) {
       router.push("/");
     }
-  }, [selectedRoom, router]);
+  }, [selectedRoom, router, isLoading]);
 
-  if (!selectedRoom)
+  if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Spinner />
+      <div className="container mx-auto px-4 py-8">
+        <BackButton />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <BookingCalendarSkeleton />
+          <div className="space-y-6 lg:sticky lg:top-24">
+            <RoomDetailsSkeleton />
+            <BookingFormSkeleton />
+          </div>
+        </div>
       </div>
     );
+  }
+
+  if (!selectedRoom) return null;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <BackButton />
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <BookingCalendar
           selectedDate={selectedDate}
@@ -44,7 +57,6 @@ export default function BookRoom() {
           onDateSelect={setSelectedDate}
           onTimeSelect={setSelectedTime}
         />
-
         <div className="space-y-6 lg:sticky lg:top-24">
           <RoomDetails room={selectedRoom} />
           <BookingForm

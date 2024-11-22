@@ -57,7 +57,7 @@ export function Header() {
                   href={item.href}
                   className={cn(
                     "text-sm hover:text-primary text-muted-foreground",
-                    isActive(item.href) && "text-primary"
+                    isActive(item.href) && "text-primary cursor-default"
                   )}
                 >
                   {item.label}

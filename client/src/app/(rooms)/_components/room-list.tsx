@@ -45,7 +45,7 @@ export function RoomList() {
           ))}
 
         {!isLoading &&
-          rooms?.length &&
+          rooms?.length > 0 &&
           rooms.map((room) => <RoomCard key={room.id} room={room} />)}
       </div>
     </div>

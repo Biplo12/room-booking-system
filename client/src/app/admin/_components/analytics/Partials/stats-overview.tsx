@@ -1,8 +1,19 @@
+"use client";
+
 import { useBookingStore } from "@/store/bookingStore";
 import { StatsCard } from "./stats-card";
+import { useRooms } from "@/hooks/useRooms";
+import { useBookings } from "@/hooks/useBookings";
+import { StatsOverviewSkeleton } from "./stats-overview-skeleton";
 
 export function StatsOverview() {
+  const { isLoading: roomsLoading } = useRooms();
+  const { isLoading: bookingsLoading } = useBookings();
   const { rooms, reservations } = useBookingStore();
+
+  if (roomsLoading || bookingsLoading) {
+    return <StatsOverviewSkeleton />;
+  }
 
   const calculateUtilizationRate = () => {
     if (rooms.length === 0) return 0;

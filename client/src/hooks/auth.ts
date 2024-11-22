@@ -121,7 +121,7 @@ export function useRegister() {
   return useMutation<AuthResponse, Error, RegisterCredentials>({
     mutationFn: async (credentials) => {
       const data = await registerUser(credentials);
-      router.push("/login");
+      router.push("/");
 
       return data;
     },

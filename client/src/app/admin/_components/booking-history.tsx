@@ -3,8 +3,8 @@
 import { format } from "date-fns";
 import { EmptyState } from "@/components/empty-state";
 import { useBookings } from "@/hooks/useBookings";
-import Spinner from "@/components/spinner";
 import { useBookingStore } from "@/store/bookingStore";
+import { BookingHistorySkeleton } from "./booking-history-skeleton";
 
 const HEADERS = ["Room", "User", "Date", "Time", "Status"];
 
@@ -13,11 +13,7 @@ export function BookingHistory() {
   const { reservations } = useBookingStore();
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Spinner />
-      </div>
-    );
+    return <BookingHistorySkeleton />;
   }
 
   if (!reservations?.length) {

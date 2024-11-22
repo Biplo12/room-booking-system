@@ -1,17 +1,23 @@
 "use client";
 
 import { useMemo } from "react";
-import { isBefore, isAfter, startOfMonth } from "date-fns";
+import { startOfMonth, isBefore, isAfter } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBookingStore } from "@/store/bookingStore";
+import { useUserStore } from "@/store/userStore";
+import { useBookings } from "@/hooks/useBookings";
+import { UserStatsSkeleton } from "./user-stats-skeleton";
 
 export function UserStats() {
+  const { isLoading } = useBookings();
   const { reservations } = useBookingStore();
-  const currentUserId = "user-1";
+  const { user } = useUserStore();
 
   const stats = useMemo(() => {
+    if (!user) return { total: 0, upcoming: 0, thisMonth: 0 };
+
     const userReservations = reservations.filter(
-      (res) => res.userId === currentUserId
+      (res) => res.userId === user.id
     );
     const now = new Date();
     const monthStart = startOfMonth(now);
@@ -25,7 +31,11 @@ export function UserStats() {
           isAfter(res.startTime, monthStart) && isBefore(res.startTime, now)
       ).length,
     };
-  }, [reservations]);
+  }, [reservations, user]);
+
+  if (isLoading) {
+    return <UserStatsSkeleton />;
+  }
 
   return (
     <div className="grid gap-4 md:grid-cols-3">

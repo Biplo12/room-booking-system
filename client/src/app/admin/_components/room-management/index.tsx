@@ -15,8 +15,8 @@ import {
   useUpdateRoom,
   useDeleteRoom,
 } from "@/hooks/useRooms";
-import Spinner from "@/components/spinner";
 import { useBookingStore } from "@/store/bookingStore";
+import { RoomManagementSkeleton } from "./room-management-skeleton";
 
 export function RoomManagement() {
   const { rooms } = useBookingStore();
@@ -81,11 +81,7 @@ export function RoomManagement() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Spinner />
-      </div>
-    );
+    return <RoomManagementSkeleton />;
   }
 
   if (error) {

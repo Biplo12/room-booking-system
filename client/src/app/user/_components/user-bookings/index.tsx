@@ -6,8 +6,8 @@ import { useBookingStore } from "@/store/bookingStore";
 import { toast } from "sonner";
 import { BookingCard } from "./Partials/booking-card";
 import { useBookings } from "@/hooks/useBookings";
-import Spinner from "@/components/spinner";
 import { useUserStore } from "@/store/userStore";
+import { BookingCardSkeleton } from "./Partials/booking-card-skeleton";
 
 export function UserBookings() {
   const { cancelReservation, reservations } = useBookingStore();
@@ -35,8 +35,9 @@ export function UserBookings() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Spinner />
+      <div className="space-y-6">
+        <BookingCardSkeleton />
+        <BookingCardSkeleton />
       </div>
     );
   }
