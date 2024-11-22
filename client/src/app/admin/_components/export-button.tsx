@@ -38,6 +38,7 @@ export function ExportButton() {
       variant="outline"
       className="flex items-center gap-2"
       onClick={handleExport}
+      disabled={!reservations.length}
     >
       <Download className="h-4 w-4" />
       Export to Excel

@@ -12,7 +12,9 @@ def test_create_room_as_admin(client, admin_auth_headers):
     data = {
         "name": "Test Room",
         "capacity": 10,
-        "equipment": "Projector, Whiteboard"
+        "equipment": "Projector, Whiteboard",
+        "location": "Floor 1, Building A",
+        "image_url": "https://example.com/image.jpg"
     }
     response = client.post('/api/v1/rooms',
                           headers=admin_auth_headers,
@@ -25,7 +27,9 @@ def test_create_room_unauthorized(client, user_auth_headers):
     data = {
         "name": "Test Room",
         "capacity": 10,
-        "equipment": "Projector, Whiteboard"
+        "equipment": "Projector, Whiteboard",
+        "location": "Floor 1, Building A",
+        "image_url": "https://example.com/image.jpg"
     }
     response = client.post('/api/v1/rooms',
                           headers=user_auth_headers,
@@ -44,7 +48,9 @@ def test_create_room_validation_error(client, admin_auth_headers):
     data = {
         "name": "",
         "capacity": "invalid",
-        "equipment": "Projector"
+        "equipment": "Projector",
+        "location": "Floor 1, Building A",
+        "image_url": "https://example.com/image.jpg"
     }
     response = client.post('/api/v1/rooms',
                           headers=admin_auth_headers,
@@ -57,7 +63,9 @@ def test_update_room(client, admin_auth_headers):
     create_data = {
         "name": "Test Room",
         "capacity": 10,
-        "equipment": "Projector"
+        "equipment": "Projector",
+        "location": "Floor 1, Building A",
+        "image_url": "https://example.com/image.jpg"
     }
     create_response = client.post('/api/v1/rooms',
                                 headers=admin_auth_headers,
@@ -91,7 +99,9 @@ def test_delete_room(client, admin_auth_headers):
     create_data = {
         "name": "Test Room",
         "capacity": 10,
-        "equipment": "Projector"
+        "equipment": "Projector",
+        "location": "Floor 1, Building A",
+        "image_url": "https://example.com/image.jpg"
     }
     create_response = client.post('/api/v1/rooms',
                                 headers=admin_auth_headers,

@@ -1,12 +1,9 @@
+import { useBookingStore } from "@/store/bookingStore";
 import { StatsCard } from "./stats-card";
-import { Room, Reservation } from "@/interfaces";
 
-interface StatsOverviewProps {
-  rooms: Room[];
-  reservations: Reservation[];
-}
+export function StatsOverview() {
+  const { rooms, reservations } = useBookingStore();
 
-export function StatsOverview({ rooms, reservations }: StatsOverviewProps) {
   const calculateUtilizationRate = () => {
     if (rooms.length === 0) return 0;
     return Math.round((reservations.length / (rooms.length * 12)) * 100);

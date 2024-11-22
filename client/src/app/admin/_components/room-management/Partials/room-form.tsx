@@ -26,9 +26,10 @@ export function RoomForm({ onSubmit, room }: RoomFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: room?.name || "",
-      capacity: room?.capacity?.toString() || "",
+      capacity: Number(room?.capacity) || 0,
       location: room?.location || "",
-      equipment: room?.equipment?.join(", ") || "",
+      equipment: room?.equipment || "",
+      image_url: room?.image_url || "",
     },
   });
 
@@ -56,7 +57,13 @@ export function RoomForm({ onSubmit, room }: RoomFormProps) {
             <FormItem>
               <FormLabel>Capacity</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="10" {...field} />
+                <Input
+                  type="number"
+                  placeholder="10"
+                  {...field}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  value={field.value}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -88,6 +95,20 @@ export function RoomForm({ onSubmit, room }: RoomFormProps) {
                   placeholder="Projector, Whiteboard, Video conferencing"
                   {...field}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="image_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Image URL (optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="https://example.com/image.jpg" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

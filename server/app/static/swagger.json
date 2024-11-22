@@ -228,7 +228,9 @@
                               "id": { "type": "integer" },
                               "name": { "type": "string" },
                               "capacity": { "type": "integer" },
-                              "equipment": { "type": "string" }
+                              "equipment": { "type": "string" },
+                              "image_url": { "type": "string" },
+                              "location": { "type": "string" }
                             }
                           }
                         },
@@ -265,7 +267,9 @@
                 "properties": {
                   "name": { "type": "string" },
                   "capacity": { "type": "integer" },
-                  "equipment": { "type": "string" }
+                  "equipment": { "type": "string" },
+                  "image_url": { "type": "string" },
+                  "location": { "type": "string" }
                 },
                 "required": ["name", "capacity"]
               }
@@ -288,7 +292,9 @@
                         "id": { "type": "integer" },
                         "name": { "type": "string" },
                         "capacity": { "type": "integer" },
-                        "equipment": { "type": "string" }
+                        "equipment": { "type": "string" },
+                        "image_url": { "type": "string" },
+                        "location": { "type": "string" }
                       }
                     }
                   }
@@ -343,7 +349,9 @@
                         "id": { "type": "integer" },
                         "name": { "type": "string" },
                         "capacity": { "type": "integer" },
-                        "equipment": { "type": "string" }
+                        "equipment": { "type": "string" },
+                        "image_url": { "type": "string" },
+                        "location": { "type": "string" }
                       }
                     }
                   }
@@ -382,7 +390,9 @@
                 "properties": {
                   "name": { "type": "string" },
                   "capacity": { "type": "integer" },
-                  "equipment": { "type": "string" }
+                  "equipment": { "type": "string" },
+                  "image_url": { "type": "string" },
+                  "location": { "type": "string" }
                 }
               }
             }
@@ -404,7 +414,9 @@
                         "id": { "type": "integer" },
                         "name": { "type": "string" },
                         "capacity": { "type": "integer" },
-                        "equipment": { "type": "string" }
+                        "equipment": { "type": "string" },
+                        "image_url": { "type": "string" },
+                        "location": { "type": "string" }
                       }
                     }
                   }

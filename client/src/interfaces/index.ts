@@ -3,8 +3,8 @@ export interface Room {
   name: string;
   capacity: number;
   location: string;
-  equipment: string[];
-  imageUrl: string;
+  equipment: string;
+  image_url: string;
 }
 
 export interface Reservation {

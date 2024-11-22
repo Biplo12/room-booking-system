@@ -5,42 +5,54 @@ import { isBefore } from "date-fns";
 import { useBookingStore } from "@/store/bookingStore";
 import { toast } from "sonner";
 import { BookingCard } from "./Partials/booking-card";
+import { useBookings } from "@/hooks/useBookings";
+import Spinner from "@/components/spinner";
+import { useUserStore } from "@/store/userStore";
 
 export function UserBookings() {
-  const { reservations, cancelReservation } = useBookingStore();
-  const currentUserId = "user-1";
+  const { cancelReservation, reservations } = useBookingStore();
+  const { user } = useUserStore();
+  const { isLoading } = useBookings();
 
   const userReservations = useMemo(() => {
-    return reservations
-      .filter((res) => res.userId === currentUserId)
-      .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
-  }, [reservations]);
+    if (!reservations) return { upcoming: [], past: [] };
 
-  const { upcoming, past } = useMemo(() => {
+    const filtered = reservations
+      .filter((res) => res.userId === user?.id)
+      .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+
     const now = new Date();
     return {
-      upcoming: userReservations.filter((res) => isBefore(now, res.startTime)),
-      past: userReservations.filter((res) => !isBefore(now, res.endTime)),
+      upcoming: filtered.filter((res) => isBefore(now, res.startTime)),
+      past: filtered.filter((res) => !isBefore(now, res.endTime)),
     };
-  }, [userReservations]);
+  }, [reservations, user]);
 
   const handleCancelReservation = (reservationId: number) => {
     cancelReservation(reservationId);
     toast.success("Your booking has been cancelled successfully.");
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner />
+      </div>
+    );
+  }
+
   const bookingCards = [
     {
       title: "Upcoming Bookings",
       description: "Your scheduled room reservations",
-      bookings: upcoming,
+      bookings: userReservations.upcoming,
       type: "upcoming",
       onCancelBooking: handleCancelReservation,
     },
     {
       title: "Past Bookings",
       description: "Your booking history",
-      bookings: past,
+      bookings: userReservations.past,
       type: "past",
     },
   ];

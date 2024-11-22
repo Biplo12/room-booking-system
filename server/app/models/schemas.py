@@ -9,7 +9,9 @@ class ConferenceRoomSchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
     capacity = fields.Int(required=True)
+    location = fields.Str(required=True)
     equipment = fields.Str()
+    image_url = fields.Str()
 
 class UserSchema(Schema):
     id = fields.Int(dump_only=True)

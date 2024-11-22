@@ -6,7 +6,9 @@ def test_complete_reservation_flow(client, admin_auth_headers, user_auth_headers
     room_data = {
         "name": "Meeting Room A",
         "capacity": 10,
-        "equipment": "Projector"
+        "equipment": "Projector",
+        "location": "Floor 1, Building A",
+        "image_url": "https://example.com/image.jpg"
     }
     room_response = client.post('/api/v1/rooms',
                               headers=admin_auth_headers,

@@ -73,7 +73,6 @@ async function verifyToken() {
 
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     const { data } = await api.get("/auth/verify");
-    console.log(data);
 
     return data;
   } catch (error: any) {

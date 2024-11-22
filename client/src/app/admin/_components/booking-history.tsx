@@ -1,15 +1,26 @@
 "use client";
 
-import { EmptyState } from "@/components/empty-state";
-import { useBookingStore } from "@/store/bookingStore";
 import { format } from "date-fns";
+import { EmptyState } from "@/components/empty-state";
+import { useBookings } from "@/hooks/useBookings";
+import Spinner from "@/components/spinner";
+import { useBookingStore } from "@/store/bookingStore";
 
 const HEADERS = ["Room", "User", "Date", "Time", "Status"];
 
 export function BookingHistory() {
+  const { isLoading } = useBookings();
   const { reservations } = useBookingStore();
 
-  if (reservations.length === 0) {
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!reservations?.length) {
     return (
       <div className="mt-10">
         <EmptyState

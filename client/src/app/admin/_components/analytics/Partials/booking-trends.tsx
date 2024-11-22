@@ -14,13 +14,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Reservation } from "@/interfaces";
+import { useBookingStore } from "@/store/bookingStore";
 
-interface BookingTrendsProps {
-  reservations: Reservation[];
-}
+export function BookingTrends() {
+  const { reservations } = useBookingStore();
 
-export function BookingTrends({ reservations }: BookingTrendsProps) {
   const chartData = eachDayOfInterval({
     start: startOfMonth(new Date()),
     end: endOfMonth(new Date()),

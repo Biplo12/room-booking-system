@@ -6,12 +6,13 @@ import {
   Calendar,
   Users,
   AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
 
 interface EmptyStateProps {
   title: string;
   description: string;
-  icon: "PieChart" | "Calendar" | "Users" | "AlertCircle";
+  icon: "PieChart" | "Calendar" | "Users" | "AlertCircle" | "AlertTriangle";
 }
 
 const icons: Record<EmptyStateProps["icon"], LucideIcon> = {
@@ -19,6 +20,7 @@ const icons: Record<EmptyStateProps["icon"], LucideIcon> = {
   Calendar,
   Users,
   AlertCircle,
+  AlertTriangle,
 };
 
 export function EmptyState({ title, description, icon }: EmptyStateProps) {
