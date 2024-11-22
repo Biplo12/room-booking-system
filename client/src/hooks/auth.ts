@@ -52,7 +52,10 @@ async function registerUser(
   credentials: RegisterCredentials
 ): Promise<AuthResponse> {
   try {
-    const { data } = await api.post<AuthResponse>("/auth/register", credentials);
+    const { data } = await api.post<AuthResponse>(
+      "/auth/register",
+      credentials
+    );
     toast.success("Account created successfully");
     return data;
   } catch (error: any) {
@@ -67,12 +70,17 @@ async function verifyToken() {
     if (!token) {
       throw new Error("No token found");
     }
-    
+
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     const { data } = await api.get("/auth/verify");
+    console.log(data);
+
     return data;
   } catch (error: any) {
-    if (error?.response?.status === 401 || error?.response?.data?.msg === "Token has expired") {
+    if (
+      error?.response?.status === 401 ||
+      error?.response?.data?.msg === "Token has expired"
+    ) {
       const customError = new Error("Session expired");
       customError.name = "SessionExpiredError";
       throw customError;
@@ -80,7 +88,6 @@ async function verifyToken() {
     throw error;
   }
 }
-
 
 export function useLogin() {
   const router = useRouter();
@@ -90,7 +97,7 @@ export function useLogin() {
     mutationFn: async (credentials) => {
       const data = await loginUser(credentials);
       const user = data.data.user;
-      
+
       setUser({
         id: user.id,
         username: user.username,
@@ -103,9 +110,9 @@ export function useLogin() {
 
       toast.success("Logged in successfully");
       router.push("/");
-      
+
       return data;
-    }
+    },
   });
 }
 
@@ -116,9 +123,9 @@ export function useRegister() {
     mutationFn: async (credentials) => {
       const data = await registerUser(credentials);
       router.push("/login");
-      
+
       return data;
-    }
+    },
   });
 }
 
@@ -146,6 +153,6 @@ export function useSession() {
         }
         throw error;
       }
-    }
+    },
   });
 }
