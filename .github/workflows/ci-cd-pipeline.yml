@@ -65,17 +65,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
-          cache: "npm"
-          cache-dependency-path: client/package-lock.json
+          node-version: "20.11.0"
+          cache: "yarn"
+          cache-dependency-path: client/yarn.lock
 
       - name: Install dependencies
         working-directory: ./client
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Build Next.js app
         working-directory: ./client
-        run: npm run build
+        run: yarn build
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 

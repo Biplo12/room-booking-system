@@ -37,7 +37,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const response = NextResponse.next();
 
   response.headers.set("X-XSS-Protection", "1; mode=block");
