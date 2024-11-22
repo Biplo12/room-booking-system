@@ -99,4 +99,22 @@ def test_validate_password_numbers():
     password = "TestPass!@#"  # Long enough but missing number
     is_valid, message = validate_password(password)
     assert is_valid is False
-    assert "number" in message 
+    assert "number" in message
+
+def test_check_admin_success(client, admin_auth_headers):
+    response = client.get('/api/v1/auth/check-admin',
+                         headers=admin_auth_headers)
+    assert response.status_code == 200
+    assert response.json['success'] is True
+    assert response.json['data']['isAdmin'] is True
+
+def test_check_admin_regular_user(client, user_auth_headers):
+    response = client.get('/api/v1/auth/check-admin',
+                         headers=user_auth_headers)
+    assert response.status_code == 200
+    assert response.json['success'] is True
+    assert response.json['data']['isAdmin'] is False
+
+def test_check_admin_unauthorized(client):
+    response = client.get('/api/v1/auth/check-admin')
+    assert response.status_code == 401 

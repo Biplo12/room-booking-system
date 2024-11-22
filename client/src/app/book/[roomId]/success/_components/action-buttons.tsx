@@ -2,7 +2,7 @@ import { Download, Calendar, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Reservation } from "@/interfaces";
-import { generatePDF } from "@/utils/pdf-generator";
+import { generatePDF } from "@/lib/pdf-generator";
 
 interface ActionButtonsProps {
   reservation: Reservation;

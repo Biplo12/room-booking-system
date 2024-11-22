@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/userStore";
 import { toast } from "sonner";
@@ -30,34 +30,67 @@ interface AuthResponse {
 }
 
 async function loginUser(credentials: AuthCredentials): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>("/auth/login", credentials);
+  try {
+    const { data } = await api.post<AuthResponse>("/auth/login", credentials);
 
-  Cookies.set("access_token", data.data.access_token, {
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    httpOnly: false,
-    path: "/",
-    expires: 7,
-  });
+    Cookies.set("access_token", data.data.access_token, {
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      httpOnly: false,
+      path: "/",
+      expires: 7,
+    });
 
-  return data;
+    return data;
+  } catch (error: any) {
+    toast.error(error.response?.data.message || "Login failed");
+    throw error;
+  }
 }
 
 async function registerUser(
   credentials: RegisterCredentials
 ): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>("/auth/register", credentials);
-  return data;
+  try {
+    const { data } = await api.post<AuthResponse>("/auth/register", credentials);
+    toast.success("Account created successfully");
+    return data;
+  } catch (error: any) {
+    toast.error(error.response?.data.message || "Failed to create account");
+    throw error;
+  }
 }
+
+async function verifyToken() {
+  try {
+    const token = Cookies.get("access_token");
+    if (!token) {
+      throw new Error("No token found");
+    }
+    
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    const { data } = await api.get("/auth/verify");
+    return data;
+  } catch (error: any) {
+    if (error?.response?.status === 401 || error?.response?.data?.msg === "Token has expired") {
+      const customError = new Error("Session expired");
+      customError.name = "SessionExpiredError";
+      throw customError;
+    }
+    throw error;
+  }
+}
+
 
 export function useLogin() {
   const router = useRouter();
   const { setUser } = useUserStore();
 
   return useMutation<AuthResponse, Error, AuthCredentials>({
-    mutationFn: loginUser,
-    onSuccess: (data: AuthResponse) => {
+    mutationFn: async (credentials) => {
+      const data = await loginUser(credentials);
       const user = data.data.user;
+      
       setUser({
         id: user.id,
         username: user.username,
@@ -70,10 +103,9 @@ export function useLogin() {
 
       toast.success("Logged in successfully");
       router.push("/");
-    },
-    onError: (error: Error & { response?: { data: { message: string } } }) => {
-      toast.error(error.response?.data.message || "Login failed");
-    },
+      
+      return data;
+    }
   });
 }
 
@@ -81,13 +113,39 @@ export function useRegister() {
   const router = useRouter();
 
   return useMutation<AuthResponse, Error, RegisterCredentials>({
-    mutationFn: registerUser,
-    onSuccess: () => {
-      toast.success("Account created successfully");
+    mutationFn: async (credentials) => {
+      const data = await registerUser(credentials);
       router.push("/login");
-    },
-    onError: (error: Error & { response?: { data: { message: string } } }) => {
-      toast.error(error.response?.data.message || "Failed to create account");
-    },
+      
+      return data;
+    }
+  });
+}
+
+export function useSession() {
+  const { setUser, logout } = useUserStore();
+  const router = useRouter();
+
+  return useQuery({
+    queryKey: ["session"],
+    queryFn: async () => {
+      try {
+        const response = await verifyToken();
+        const user = response.data;
+        setUser({
+          id: user.id,
+          username: user.username,
+          role: user.role,
+        });
+        return response;
+      } catch (error: { name: string } | any) {
+        if (error.name === "SessionExpiredError") {
+          logout();
+          router.push("/login");
+          toast.error("Session expired, please login again");
+        }
+        throw error;
+      }
+    }
   });
 }

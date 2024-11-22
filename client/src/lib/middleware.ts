@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const isAuthenticated = request.cookies.has("access_token");
+  const accessToken = request.cookies.get("access_token")?.value;
 
   const protectedPaths = ["/admin", "/user", "/book"];
   const isProtectedPath = protectedPaths.some((path) =>
@@ -15,6 +16,28 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  if (request.nextUrl.pathname.startsWith("/admin") && accessToken) {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/check-admin`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.data?.isAdmin) {
+        return NextResponse.redirect(new URL("/", request.url));
+      }
+    } catch (error) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const response = NextResponse.next();
 
   response.headers.set("X-XSS-Protection", "1; mode=block");

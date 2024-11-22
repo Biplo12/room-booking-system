@@ -150,6 +150,7 @@ def verify_token():
                 'success': True,
                 'message': 'Token is valid',
                 'data': {
+                    'id': user.id,
                     'username': user.username,
                     'role': user.role
                 }
@@ -160,6 +161,36 @@ def verify_token():
             return jsonify({
                 'success': False,
                 'message': 'Error verifying token'
+            }), 500
+
+@auth_bp.route('/check-admin', methods=['GET'])
+@jwt_required()
+def check_admin():
+    with sentry_sdk.start_span(op="http.server", description="check_admin_access"):
+        try:
+            with sentry_sdk.start_span(op="db.query", description="fetch_user"):
+                user_id = get_jwt_identity()
+                user = User.query.get(user_id)
+                
+                if not user:
+                    return jsonify({
+                        'success': False,
+                        'message': 'User not found'
+                    }), 404
+
+            return jsonify({
+                'success': True,
+                'message': 'Admin check successful',
+                'data': {
+                    'isAdmin': user.role == 'admin'
+                }
+            }), 200
+
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            return jsonify({
+                'success': False,
+                'message': 'Error checking admin status'
             }), 500
 
 def is_admin():

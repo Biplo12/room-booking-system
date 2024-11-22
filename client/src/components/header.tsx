@@ -6,11 +6,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/store/userStore";
 import { Button } from "./ui/button";
+import { useSession } from "@/hooks/auth";
+import Spinner from "./spinner";
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, logout } = useUserStore();
+  const { isLoading } = useSession();
 
   const isActive = (href: string) => pathname === href;
 
@@ -61,7 +64,11 @@ export function Header() {
                 </Link>
               ))}
             </nav>
-            {isAuthenticated ? (
+            {isLoading ? (
+              <Button disabled className="w-20">
+                <Spinner />
+              </Button>
+            ) : isAuthenticated ? (
               <Button variant="outline" onClick={handleLogout}>
                 Logout
               </Button>
