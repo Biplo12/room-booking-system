@@ -6,12 +6,43 @@ import { useRooms } from "@/hooks/useRooms";
 import { EmptyState } from "@/components/empty-state";
 import { RoomCardSkeleton } from "./room-card/room-card-skeleton";
 import { useBookingStore } from "@/store/bookingStore";
+import { useFilterStore } from "@/store/filterStore";
+import { useMemo } from "react";
 
 const SKELETON_COUNT = 4;
 
 export function RoomList() {
   const { isLoading, error } = useRooms();
   const { rooms } = useBookingStore();
+  const { search, capacity, equipment } = useFilterStore();
+
+  const filteredRooms = useMemo(() => {
+    if (!rooms) return [];
+
+    return rooms.filter((room) => {
+      if (search && !room.name.toLowerCase().includes(search.toLowerCase())) {
+        return false;
+      }
+
+      if (capacity) {
+        const roomCapacity = room.capacity;
+        if (
+          (capacity === "small" && roomCapacity > 4) ||
+          (capacity === "medium" && (roomCapacity < 5 || roomCapacity > 8)) ||
+          (capacity === "large" && roomCapacity < 9)
+        ) {
+          return false;
+        }
+      }
+
+      if (equipment.length > 0) {
+        const roomEquipment = room.equipment?.split(",") || [];
+        return equipment.every((eq) => roomEquipment.includes(eq));
+      }
+
+      return true;
+    });
+  }, [rooms, search, capacity, equipment]);
 
   if (error) {
     return (
@@ -30,10 +61,10 @@ export function RoomList() {
       </div>
       <RoomFilter />
 
-      {!rooms?.length && !isLoading && (
+      {!filteredRooms.length && !isLoading && (
         <EmptyState
-          title="No Rooms Available"
-          description="No conference rooms are currently available."
+          title="No Rooms Found"
+          description="Try adjusting your filters to find more rooms."
           icon="Calendar"
         />
       )}
@@ -45,8 +76,7 @@ export function RoomList() {
           ))}
 
         {!isLoading &&
-          rooms?.length > 0 &&
-          rooms.map((room) => <RoomCard key={room.id} room={room} />)}
+          filteredRooms.map((room) => <RoomCard key={room.id} room={room} />)}
       </div>
     </div>
   );

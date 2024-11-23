@@ -1,4 +1,4 @@
-import { ImageIcon, Edit, Trash } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import { Room } from "@/interfaces";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,14 +9,7 @@ interface RoomTableProps {
   onDelete: (room: Room) => void;
 }
 
-const HEADERS = [
-  "Name",
-  "Capacity",
-  "Location",
-  "Equipment",
-  "Image",
-  "Actions",
-];
+const HEADERS = ["Name", "Capacity", "Location", "Equipment", "Actions"];
 
 export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
   const getEquipmentArray = (equipment: string | string[]) => {
@@ -63,15 +56,6 @@ export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
                     </Badge>
                   ))}
                 </div>
-              </td>
-              <td className="px-4 py-3">
-                <Button
-                  variant="ghost"
-                  className="h-8 w-8 p-0"
-                  disabled={!room.image_url}
-                >
-                  <ImageIcon className="h-4 w-4" />
-                </Button>
               </td>
               <td className="px-4 py-3">
                 <div className="flex gap-2 justify-end">

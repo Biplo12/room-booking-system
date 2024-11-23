@@ -1,18 +1,16 @@
-import { useState, useCallback, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import { useFilterStore } from "@/store/filterStore";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useEffect, useState } from "react";
 
-interface SearchBarProps {
-  onSearch: (query: string) => void;
-}
-
-export const SearchBar = ({ onSearch }: SearchBarProps) => {
+export function SearchBar() {
+  const { setSearch } = useFilterStore();
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedValue = useDebounce(searchTerm, 300);
 
   useEffect(() => {
-    onSearch(debouncedValue);
-  }, [debouncedValue, onSearch]);
+    setSearch(debouncedValue);
+  }, [debouncedValue, setSearch]);
 
   return (
     <Input
@@ -22,4 +20,4 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
       className="w-full"
     />
   );
-};
+}

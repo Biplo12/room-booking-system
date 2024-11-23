@@ -1,17 +1,12 @@
 import { Badge } from "@/components/ui/badge";
-import { ActiveFiltersProps, FilterValues } from "../types";
 import { X } from "lucide-react";
+import { useFilterStore } from "@/store/filterStore";
 
-export function ActiveFilters({
-  selectedFilters,
-  onFilterRemove,
-}: ActiveFiltersProps) {
-  if (!selectedFilters.capacity && !selectedFilters.equipment?.length)
-    return null;
+export function ActiveFilters() {
+  const { capacity, equipment, setPendingCapacity, setPendingEquipment } =
+    useFilterStore();
 
-  const handleFilterRemove = (filterKey: keyof FilterValues) => {
-    onFilterRemove(filterKey);
-  };
+  if (!capacity && !equipment.length) return null;
 
   const formatEquipmentName = (name: string) => {
     return name
@@ -22,25 +17,30 @@ export function ActiveFilters({
 
   return (
     <div className="flex flex-wrap gap-2">
-      {selectedFilters.capacity && (
+      {capacity && (
         <Badge variant="secondary" className="text-xs py-1.5 rounded-xl">
-          Capacity: {selectedFilters.capacity}
-          <button
-            className="ml-2"
-            onClick={() => handleFilterRemove("capacity")}
-          >
+          Capacity: {capacity}
+          <button className="ml-2" onClick={() => setPendingCapacity("")}>
             <X className="w-4 h-4 text-red-500" />
           </button>
         </Badge>
       )}
 
-      {selectedFilters.equipment?.map((item) => (
+      {equipment.map((item) => (
         <Badge
           key={item}
           variant="secondary"
           className="text-xs py-1.5 rounded-xl"
         >
           {formatEquipmentName(item)}
+          <button
+            className="ml-2"
+            onClick={() =>
+              setPendingEquipment(equipment.filter((eq) => eq !== item))
+            }
+          >
+            <X className="w-4 h-4 text-red-500" />
+          </button>
         </Badge>
       ))}
     </div>

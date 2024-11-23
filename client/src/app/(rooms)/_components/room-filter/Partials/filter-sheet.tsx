@@ -7,11 +7,10 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { FilterSheetProps, FilterValues } from "../types";
 import { FilterTrigger } from "./filter-trigger";
 import { FilterSelect } from "./filter-select";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { useState } from "react";
+import { useFilterStore } from "@/store/filterStore";
 
 const CAPACITY_OPTIONS = [
   { value: "small", label: "1-4 people" },
@@ -27,25 +26,19 @@ const EQUIPMENT_OPTIONS = [
   { value: "display_screen", label: "Display Screen" },
 ];
 
-export function FilterSheet({
-  selectedFilters,
-  onFilterChange,
-}: FilterSheetProps) {
-  const [localFilters, setLocalFilters] = useState<FilterValues>({
-    capacity: selectedFilters.capacity,
-    equipment: selectedFilters.equipment || [],
-  });
+export function FilterSheet() {
+  const {
+    capacity,
+    equipment,
+    pendingCapacity,
+    pendingEquipment,
+    setPendingCapacity,
+    setPendingEquipment,
+    applyFilters,
+    clearFilters,
+  } = useFilterStore();
 
-  const clearFilters = () => {
-    setLocalFilters({ capacity: "", equipment: [] });
-  };
-
-  const handleApplyFilters = () => {
-    onFilterChange(localFilters);
-  };
-
-  const activeFilterCount =
-    (localFilters.capacity ? 1 : 0) + (localFilters.equipment?.length || 0);
+  const activeFilterCount = (capacity ? 1 : 0) + equipment.length;
 
   return (
     <Sheet>
@@ -61,10 +54,8 @@ export function FilterSheet({
         <div className="mt-6 space-y-6">
           <FilterSelect
             label="Capacity"
-            value={localFilters.capacity}
-            onChange={(value) =>
-              setLocalFilters({ ...localFilters, capacity: value })
-            }
+            value={pendingCapacity}
+            onChange={setPendingCapacity}
             options={CAPACITY_OPTIONS}
             placeholder="Select capacity"
           />
@@ -73,10 +64,8 @@ export function FilterSheet({
             <label className="text-sm font-medium">Equipment</label>
             <MultiSelect
               options={EQUIPMENT_OPTIONS}
-              value={localFilters.equipment}
-              onChange={(value) =>
-                setLocalFilters({ ...localFilters, equipment: value })
-              }
+              value={pendingEquipment}
+              onChange={setPendingEquipment}
               placeholder="Select equipment..."
             />
           </div>
@@ -86,7 +75,7 @@ export function FilterSheet({
               Clear Filters
             </Button>
             <SheetClose asChild>
-              <Button onClick={handleApplyFilters}>Apply Filters</Button>
+              <Button onClick={applyFilters}>Apply Filters</Button>
             </SheetClose>
           </div>
         </div>

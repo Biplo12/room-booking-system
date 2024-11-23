@@ -1,62 +1,53 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { SearchBar } from "./Partials/search-bar";
 import { FilterSheet } from "./Partials/filter-sheet";
 import { ActiveFilters } from "./Partials/active-filters";
-import { FilterValues } from "./types";
+import { useFilterStore } from "@/store/filterStore";
 
 export function RoomFilter() {
+  const router = useRouter();
   const pathname = usePathname();
-  const searchParams = pathname.split("?")[1];
-  const [selectedFilters, setSelectedFilters] = useState<FilterValues>({
-    capacity: searchParams?.split("capacity=")[1]?.split("&")[0] || "",
-    equipment: searchParams?.split("equipment=")[1]?.split(",") || [],
-  });
+  const {
+    search,
+    capacity,
+    equipment,
+    setSearch,
+    setPendingCapacity,
+    setPendingEquipment,
+  } = useFilterStore();
 
   useEffect(() => {
-    setSelectedFilters({
-      capacity: searchParams?.split("capacity=")[1]?.split("&")[0] || "",
-      equipment:
-        searchParams?.split("equipment=")[1]?.split(",").filter(Boolean) || [],
-    });
-  }, [searchParams]);
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (capacity) params.set("capacity", capacity);
+    if (equipment.length) params.set("equipment", equipment.join(","));
 
-  const handleSearch = (value: string) => {
-    console.log("Searching:", value);
-  };
+    const query = params.toString();
+    router.push(`${pathname}${query ? `?${query}` : ""}`);
+  }, [search, capacity, equipment, pathname, router]);
 
-  const handleFilterRemove = (
-    filterKey: keyof FilterValues,
-    value?: string
-  ) => {
-    if (filterKey === "equipment" && value) {
-      setSelectedFilters({
-        ...selectedFilters,
-        equipment: selectedFilters.equipment.filter((item) => item !== value),
-      });
-    } else {
-      setSelectedFilters({
-        ...selectedFilters,
-        [filterKey]: filterKey === "capacity" ? "" : [],
-      });
-    }
-  };
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const searchParam = params.get("search") || "";
+    const capacityParam = params.get("capacity") || "";
+    const equipmentParam =
+      params.get("equipment")?.split(",").filter(Boolean) || [];
+
+    setSearch(searchParam);
+    setPendingCapacity(capacityParam);
+    setPendingEquipment(equipmentParam);
+  }, [setSearch, setPendingCapacity, setPendingEquipment]);
 
   return (
     <div className="space-y-4">
       <div className="flex gap-4">
-        <SearchBar onSearch={handleSearch} />
-        <FilterSheet
-          selectedFilters={selectedFilters}
-          onFilterChange={setSelectedFilters}
-        />
+        <SearchBar />
+        <FilterSheet />
       </div>
-      <ActiveFilters
-        selectedFilters={selectedFilters}
-        onFilterRemove={handleFilterRemove}
-      />
+      <ActiveFilters />
     </div>
   );
 }
