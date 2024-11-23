@@ -98,7 +98,7 @@ export function useLogin() {
       const user = data.data.user;
 
       setUser({
-        id: user.id,
+        id: Number(user.id),
         username: user.username,
         role: user.role,
       });

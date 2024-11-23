@@ -45,14 +45,14 @@ export function BookingHistory() {
           <tbody>
             {reservations.map((reservation) => (
               <tr key={reservation.id} className="border-b">
-                <td className="px-4 py-3">{reservation.roomId}</td>
-                <td className="px-4 py-3">{reservation.userId}</td>
+                <td className="px-4 py-3">{reservation.room_id}</td>
+                <td className="px-4 py-3">{reservation.user_id}</td>
                 <td className="px-4 py-3">
-                  {format(reservation.startTime, "PPP")}
+                  {format(reservation.start_time, "PPP")}
                 </td>
                 <td className="px-4 py-3">
-                  {format(reservation.startTime, "p")} -{" "}
-                  {format(reservation.endTime, "p")}
+                  {format(reservation.start_time, "p")} -{" "}
+                  {format(reservation.end_time, "p")}
                 </td>
                 <td className="px-4 py-3">
                   <span className="px-2 py-1 text-xs rounded-full bg-green-500/10 text-green-500">

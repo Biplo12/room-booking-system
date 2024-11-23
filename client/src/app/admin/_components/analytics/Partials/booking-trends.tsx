@@ -25,7 +25,8 @@ export function BookingTrends() {
   }).map((day) => ({
     date: format(day, "MMM dd"),
     bookings: reservations.filter(
-      (res) => format(res.startTime, "yyyy-MM-dd") === format(day, "yyyy-MM-dd")
+      (res) =>
+        format(res.start_time, "yyyy-MM-dd") === format(day, "yyyy-MM-dd")
     ).length,
   }));
 

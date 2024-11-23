@@ -13,11 +13,11 @@ export function generatePDF(booking: Reservation) {
 
   const details = [
     `Title: ${booking.title}`,
-    `Date: ${new Date(booking.startTime).toLocaleDateString()}`,
-    `Time: ${new Date(booking.startTime).toLocaleTimeString()} - ${new Date(
-      booking.endTime
+    `Date: ${new Date(booking.start_time).toLocaleDateString()}`,
+    `Time: ${new Date(booking.start_time).toLocaleTimeString()} - ${new Date(
+      booking.end_time
     ).toLocaleTimeString()}`,
-    `Room ID: ${booking.roomId}`,
+    `Room ID: ${booking.room_id}`,
     `Booking Reference: ${booking.id}`,
   ];
 

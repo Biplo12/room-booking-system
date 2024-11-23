@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { useBookingStore } from "@/store/bookingStore";
 import { toast } from "sonner";
 import { Reservation, Room } from "@/interfaces";
+import { useCreateBooking } from "@/hooks/useBookings";
+import { useUserStore } from "@/store/userStore";
 
 const formSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -39,8 +41,9 @@ export function ReservationForm({
   selectedTime,
 }: ReservationFormProps) {
   const router = useRouter();
-  const { addReservation } = useBookingStore();
+  const createBooking = useCreateBooking();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useUserStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,31 +55,31 @@ export function ReservationForm({
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!selectedTime) return;
+    if (!selectedTime || !user) return;
 
     setIsSubmitting(true);
     try {
       const [hours, minutes] = selectedTime.split(":");
-      const startTime = new Date(selectedDate);
-      startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      const start_time = new Date(selectedDate);
+      start_time.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-      const endTime = new Date(startTime);
-      endTime.setHours(startTime.getHours() + 1);
+      const end_time = new Date(start_time);
+      end_time.setHours(start_time.getHours() + 1);
 
-      const reservation = {
-        id: Math.floor(Math.random() * 1000),
-        roomId: Number(room.id),
-        userId: "user-1",
-        startTime,
-        endTime,
+      await createBooking.mutateAsync({
+        room_id: room.id,
+        start_time,
+        end_time,
         title: values.title,
-        description: values.description,
-      };
+        description: values.description || undefined,
+      });
 
-      addReservation(reservation);
+      toast.success("Room booked successfully!");
       router.push(`/book/${room.id}/success`);
-    } catch (error) {
-      toast.error("Failed to book the room. Please try again.");
+    } catch (error: any) {
+      toast.error(
+        error.message || "Failed to book the room. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }

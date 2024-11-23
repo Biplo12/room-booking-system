@@ -16,9 +16,9 @@ export function ReservationDetails({ reservation }: ReservationDetailsProps) {
         <div>
           <h3 className="font-medium">Date & Time</h3>
           <p className="text-muted-foreground">
-            {new Date(reservation.startTime).toLocaleDateString()} at{" "}
-            {new Date(reservation.startTime).toLocaleTimeString()} -{" "}
-            {new Date(reservation.endTime).toLocaleTimeString()}
+            {new Date(reservation.start_time).toLocaleDateString()} at{" "}
+            {new Date(reservation.start_time).toLocaleTimeString()} -{" "}
+            {new Date(reservation.end_time).toLocaleTimeString()}
           </p>
         </div>
         {reservation.description && (

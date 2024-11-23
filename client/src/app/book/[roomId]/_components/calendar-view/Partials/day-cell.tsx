@@ -1,7 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Reservation } from "@/interfaces";
 import { cn } from "@/lib/utils";
-import { format, isEqual, isSameMonth, isToday } from "date-fns";
+import {
+  format,
+  isEqual,
+  isSameMonth,
+  isToday,
+  isBefore,
+  startOfDay,
+  parseISO,
+} from "date-fns";
 
 interface DayCellProps {
   day: Date;
@@ -18,27 +26,47 @@ export function DayCell({
   onDateSelect,
   reservations,
 }: DayCellProps) {
-  const dayReservations = reservations.filter(
-    (res) => format(res.startTime, "yyyy-MM-dd") === format(day, "yyyy-MM-dd")
-  );
+  const dayReservations = reservations.filter((res) => {
+    try {
+      const resDate =
+        typeof res.start_time === "string"
+          ? parseISO(res.start_time)
+          : res.start_time instanceof Date
+          ? res.start_time
+          : new Date();
+
+      return format(resDate, "yyyy-MM-dd") === format(day, "yyyy-MM-dd");
+    } catch (error) {
+      console.error("Invalid date format:", res.start_time);
+      return false;
+    }
+  });
+
+  const isPastDay = isBefore(day, startOfDay(new Date()));
 
   return (
     <Button
       variant="ghost"
       className={cn(
-        "h-full w-full p-2 font-normal hover:bg-muted/50",
+        "h-full w-full p-2 font-normal",
         !isSameMonth(day, currentDate) && "text-muted-foreground",
         isEqual(day, selectedDate) && "bg-primary/10",
-        isToday(day) && "border-2 border-primary"
+        isToday(day) && "border-2 border-primary",
+        isPastDay
+          ? "opacity-50 cursor-not-allowed bg-muted"
+          : "hover:bg-muted/50"
       )}
-      onClick={() => onDateSelect(day)}
+      onClick={() => !isPastDay && onDateSelect(day)}
+      disabled={isPastDay}
     >
       <div className="flex flex-col h-full justify-center items-center">
         <time
           dateTime={format(day, "yyyy-MM-dd")}
           className={cn(
             "mb-1 flex h-7 w-7 items-center justify-center rounded-full",
-            isEqual(day, selectedDate) && "bg-primary text-primary-foreground"
+            isEqual(day, selectedDate) &&
+              !isPastDay &&
+              "bg-primary text-primary-foreground"
           )}
         >
           {format(day, "d")}

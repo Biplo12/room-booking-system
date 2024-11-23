@@ -28,8 +28,8 @@ export function RoomCard({ room }: RoomCardProps) {
 
   const todayReservations = reservations.filter(
     (res) =>
-      Number(res.roomId) === Number(room.id) &&
-      new Date(res.startTime).toDateString() === new Date().toDateString()
+      Number(res.room_id) === Number(room.id) &&
+      new Date(res.start_time).toDateString() === new Date().toDateString()
   ).length;
 
   return (

@@ -18,8 +18,8 @@ export function BookingItem({
   onCancelBooking,
 }: BookingItemProps) {
   const { rooms } = useBookingStore();
-  const canCancel = useCanCancel(booking.startTime);
-  const room = rooms.find((r) => r.id === Number(booking.roomId));
+  const canCancel = useCanCancel(booking.start_time);
+  const room = rooms.find((r) => r.id === Number(booking.room_id));
 
   return (
     <div
@@ -31,11 +31,11 @@ export function BookingItem({
       <div className="space-y-1">
         <h3 className="font-medium">{booking.title}</h3>
         <p className="text-sm text-muted-foreground">
-          {room?.name} - {format(booking.startTime, "PPP")}
+          {room?.name} - {format(booking.start_time, "PPP")}
         </p>
         <p className="text-sm text-muted-foreground">
-          {format(booking.startTime, "h:mm a")} -{" "}
-          {format(booking.endTime, "h:mm a")}
+          {format(booking.start_time, "h:mm a")} -{" "}
+          {format(booking.end_time, "h:mm a")}
         </p>
       </div>
       {type === "upcoming" &&

@@ -18,13 +18,13 @@ export function UserBookings() {
     if (!reservations) return { upcoming: [], past: [] };
 
     const filtered = reservations
-      .filter((res) => res.userId === user?.id)
-      .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+      .filter((res) => res.user_id === user?.id)
+      .sort((a, b) => a.start_time.getTime() - b.start_time.getTime());
 
     const now = new Date();
     return {
-      upcoming: filtered.filter((res) => isBefore(now, res.startTime)),
-      past: filtered.filter((res) => !isBefore(now, res.endTime)),
+      upcoming: filtered.filter((res) => isBefore(now, res.start_time)),
+      past: filtered.filter((res) => !isBefore(now, res.end_time)),
     };
   }, [reservations, user]);
 

@@ -9,7 +9,7 @@ import sentry_sdk
 
 from app.models.conference_room import ConferenceRoom
 from app.models.schemas import ConferenceRoomSchema
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.models.reservation import Reservation
 from app.routes.auth_routes import is_admin
 
@@ -276,8 +276,12 @@ def reserve_room(room_id):
                 sanitized_data = sanitize_input(data)
                 start_time = sanitized_data.get('start_time')
                 end_time = sanitized_data.get('end_time')
-
-                if not start_time or not end_time:
+                title = sanitized_data.get('title', '')
+                description = sanitized_data.get('description', '')
+                
+                user_id = str(get_jwt_identity())
+                
+                if not all([start_time, end_time]):
                     return jsonify({
                         'success': False,
                         'message': 'Start time and end time are required'
@@ -305,7 +309,10 @@ def reserve_room(room_id):
                             Reservation.room_id == room_id,
                             Reservation.start_time < end_time,
                             Reservation.end_time > start_time,
-                            Reservation.is_deleted == False
+                            Reservation.is_deleted == False,
+                            Reservation.user_id == str(user_id),
+                            Reservation.title == title,
+                            Reservation.description == description
                         )
                     )
                 ).scalar()
@@ -319,8 +326,11 @@ def reserve_room(room_id):
             with sentry_sdk.start_span(op="db.write", description="create_reservation"):
                 reservation = Reservation(
                     room_id=room_id,
+                    user_id=user_id,
                     start_time=start_time,
-                    end_time=end_time
+                    end_time=end_time,
+                    title=title,
+                    description=description
                 )
                 
                 db.session.add(reservation)
@@ -328,7 +338,16 @@ def reserve_room(room_id):
 
             return jsonify({
                 'success': True,
-                'message': 'Reservation created successfully'
+                'message': 'Reservation created successfully',
+                'data': {
+                    'id': reservation.id,
+                    'room_id': reservation.room_id,
+                    'user_id': reservation.user_id,
+                    'start_time': reservation.start_time.isoformat(),
+                    'end_time': reservation.end_time.isoformat(),
+                    'title': reservation.title,
+                    'description': reservation.description,
+                }
             }), 201
 
         except Exception as e:

@@ -11,11 +11,14 @@ export function useBookings() {
     queryKey: ["bookings"],
     queryFn: async () => {
       const { data } = await api.get<Reservation[]>("/bookings");
-      return data;
+      return data.map((reservation) => ({
+        ...reservation,
+        start_time: new Date(reservation.start_time),
+        end_time: new Date(reservation.end_time),
+      }));
     },
   });
 
-  // Sync with store when data changes
   useEffect(() => {
     if (query.data) {
       setReservations(query.data);
@@ -34,12 +37,15 @@ export function useRoomBookings(roomId: number) {
       const { data } = await api.get<Reservation[]>(
         `/rooms/${roomId}/bookings`
       );
-      return data;
+      return data.map((reservation) => ({
+        ...reservation,
+        start_time: new Date(reservation.start_time),
+        end_time: new Date(reservation.end_time),
+      }));
     },
     enabled: !!roomId,
   });
 
-  // Sync room-specific bookings with store
   useEffect(() => {
     if (query.data) {
       setReservations(query.data);
@@ -54,14 +60,33 @@ export function useCreateBooking() {
   const { addReservation } = useBookingStore();
 
   return useMutation({
-    mutationFn: async (bookingData: Omit<Reservation, "id">) => {
-      const { data } = await api.post<Reservation>("/bookings", bookingData);
+    mutationFn: async (bookingData: {
+      room_id: number;
+      start_time: Date;
+      end_time: Date;
+      title: string;
+      description?: string;
+    }) => {
+      const { room_id, ...reservationData } = bookingData;
+      const { data } = await api.post<Reservation>(
+        `/rooms/${room_id}/reserve`,
+        {
+          ...reservationData,
+          start_time: reservationData.start_time.toISOString(),
+          end_time: reservationData.end_time.toISOString(),
+        }
+      );
       return data;
     },
     onSuccess: (newBooking) => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
-      // Update store optimistically
+      queryClient.invalidateQueries({ queryKey: ["bookings", "room"] });
       addReservation(newBooking);
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error.response?.data?.message || "Failed to create booking";
+      throw new Error(errorMessage);
     },
   });
 }

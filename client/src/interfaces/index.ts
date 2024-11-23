@@ -9,10 +9,10 @@ export interface Room {
 
 export interface Reservation {
   id: number;
-  roomId: number;
-  userId: string;
-  startTime: Date;
-  endTime: Date;
+  room_id: number;
+  user_id: number;
+  start_time: Date;
+  end_time: Date;
   title: string;
   description?: string;
 }

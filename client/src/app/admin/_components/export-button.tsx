@@ -10,16 +10,16 @@ export function ExportButton() {
 
   const handleExport = () => {
     const bookingsData = reservations.map((booking) => {
-      const room = rooms.find((r) => r.id === Number(booking.roomId));
+      const room = rooms.find((r) => r.id === Number(booking.room_id));
       return {
         "Booking ID": booking.id,
-        Room: room?.name || booking.roomId,
+        Room: room?.name || booking.room_id,
         Title: booking.title,
-        Date: new Date(booking.startTime).toLocaleDateString(),
-        "Start Time": new Date(booking.startTime).toLocaleTimeString(),
-        "End Time": new Date(booking.endTime).toLocaleTimeString(),
+        Date: new Date(booking.start_time).toLocaleDateString(),
+        "Start Time": new Date(booking.start_time).toLocaleTimeString(),
+        "End Time": new Date(booking.end_time).toLocaleTimeString(),
         Description: booking.description || "-",
-        "User ID": booking.userId,
+        "User ID": booking.user_id,
       };
     });
 

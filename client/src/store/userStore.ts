@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import { api } from "@/lib/axios";
 
 interface User {
-  id: string;
+  id: number;
   username: string;
   role: "user" | "admin";
 }

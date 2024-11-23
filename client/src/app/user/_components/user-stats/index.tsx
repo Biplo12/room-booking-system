@@ -17,18 +17,18 @@ export function UserStats() {
     if (!user) return { total: 0, upcoming: 0, thisMonth: 0 };
 
     const userReservations = reservations.filter(
-      (res) => res.userId === user.id
+      (res) => res.user_id === user.id
     );
     const now = new Date();
     const monthStart = startOfMonth(now);
 
     return {
       total: userReservations.length,
-      upcoming: userReservations.filter((res) => isBefore(now, res.startTime))
+      upcoming: userReservations.filter((res) => isBefore(now, res.start_time))
         .length,
       thisMonth: userReservations.filter(
         (res) =>
-          isAfter(res.startTime, monthStart) && isBefore(res.startTime, now)
+          isAfter(res.start_time, monthStart) && isBefore(res.start_time, now)
       ).length,
     };
   }, [reservations, user]);
