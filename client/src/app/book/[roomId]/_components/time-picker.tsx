@@ -38,33 +38,30 @@ export function TimePicker({
 
   const isTimeSlotBooked = (hour: number) => {
     try {
-      const currentSlot = setHours(setMinutes(selectedDate, 0), hour);
-      if (isNaN(currentSlot.getTime())) return true;
+      const slotStart = setHours(setMinutes(selectedDate, 0), hour);
+      const slotEnd = setHours(setMinutes(selectedDate, 0), hour + 1);
 
-      return roomReservations.some((res) => {
+      const isBooked = roomReservations.some((res) => {
         try {
           const resStart = parseReservationDate(res.start_time);
           const resEnd = parseReservationDate(res.end_time);
 
-          if (
-            !resStart ||
-            !resEnd ||
-            isNaN(resStart.getTime()) ||
-            isNaN(resEnd.getTime())
-          ) {
-            return false;
-          }
+          if (!resStart || !resEnd) return false;
 
           return (
-            format(currentSlot, "yyyy-MM-dd HH") ===
-              format(resStart, "yyyy-MM-dd HH") ||
-            (currentSlot >= resStart && currentSlot < resEnd)
+            (slotStart >= resStart && slotStart < resEnd) ||
+            (slotEnd > resStart && slotEnd <= resEnd) ||
+            (slotStart <= resStart && slotEnd >= resEnd)
           );
-        } catch {
+        } catch (error) {
+          console.error("Error comparing reservation:", error);
           return false;
         }
       });
-    } catch {
+
+      return isBooked;
+    } catch (error) {
+      console.error("Error in isTimeSlotBooked:", error);
       return true;
     }
   };

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Reservation } from "@/interfaces";
 import { cn } from "@/lib/utils";
+import { useBookingStore } from "@/store/bookingStore";
 import {
   format,
   isEqual,
@@ -16,7 +16,6 @@ interface DayCellProps {
   currentDate: Date;
   selectedDate: Date;
   onDateSelect: (date: Date) => void;
-  reservations: Reservation[];
 }
 
 export function DayCell({
@@ -24,8 +23,9 @@ export function DayCell({
   currentDate,
   selectedDate,
   onDateSelect,
-  reservations,
 }: DayCellProps) {
+  const { roomReservations } = useBookingStore();
+
   const parseReservationDate = (dateValue: string | Date | undefined) => {
     if (!dateValue) return null;
     try {
@@ -42,7 +42,7 @@ export function DayCell({
     }
   };
 
-  const dayReservations = reservations.filter((res) => {
+  const dayReservations = roomReservations.filter((res) => {
     try {
       const resDate = parseReservationDate(res.start_time);
       if (!resDate || isNaN(resDate.getTime())) return false;
@@ -53,7 +53,7 @@ export function DayCell({
   });
 
   const isDayFullyBooked = () => {
-    const dayBookings = reservations.filter((res) => {
+    const dayBookings = roomReservations.filter((res) => {
       try {
         const resDate = parseReservationDate(res.start_time);
         if (!resDate || isNaN(resDate.getTime())) return false;

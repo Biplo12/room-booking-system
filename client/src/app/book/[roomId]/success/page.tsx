@@ -23,7 +23,7 @@ export default function BookingSuccess() {
     <div className="container mx-auto px-4 w-full h-full flex items-center justify-center min-h-[65vh]">
       <div className="max-w-2xl mx-auto text-center">
         <SuccessHeader />
-        <ActionButtons reservation={latestBooking} />
+        <ActionButtons />
       </div>
     </div>
   );

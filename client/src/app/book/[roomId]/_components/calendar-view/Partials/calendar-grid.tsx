@@ -7,7 +7,6 @@ interface CalendarGridProps {
   currentDate: Date;
   selectedDate: Date;
   onDateSelect: (date: Date) => void;
-  reservations: any[];
 }
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -18,7 +17,6 @@ export function CalendarGrid({
   currentDate,
   selectedDate,
   onDateSelect,
-  reservations,
 }: CalendarGridProps) {
   return (
     <>
@@ -46,7 +44,6 @@ export function CalendarGrid({
             currentDate={currentDate}
             selectedDate={selectedDate}
             onDateSelect={onDateSelect}
-            reservations={reservations}
           />
         ))}
       </div>

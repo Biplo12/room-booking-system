@@ -10,7 +10,6 @@ import {
   startOfToday,
   startOfWeek,
 } from "date-fns";
-import { useBookingStore } from "@/store/bookingStore";
 import { CalendarHeader } from "./Partials/calendar-header";
 import { CalendarGrid } from "./Partials/calendar-grid";
 
@@ -25,7 +24,6 @@ export function CalendarView({
 }: CalendarViewProps) {
   const [view, setView] = useState<"week" | "month">("month");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { reservations } = useBookingStore();
 
   const getMonthDays = (date: Date) => {
     const start = startOfWeek(startOfMonth(date));
@@ -76,7 +74,6 @@ export function CalendarView({
         currentDate={currentDate}
         selectedDate={selectedDate}
         onDateSelect={onDateSelect}
-        reservations={reservations}
       />
     </div>
   );

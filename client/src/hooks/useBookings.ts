@@ -8,6 +8,7 @@ import { useUserStore } from "@/store/userStore";
 export function useBookings() {
   const { setReservations } = useBookingStore();
   const { isAuthenticated } = useUserStore();
+
   const query = useQuery({
     queryKey: ["bookings"],
     queryFn: async () => {
@@ -38,19 +39,21 @@ export function useRoomBookings(roomId: number) {
   const { isAuthenticated } = useUserStore();
 
   const query = useQuery({
-    queryKey: ["bookings", "room", roomId],
+    queryKey: ["bookings", "room", roomId, isAuthenticated],
     queryFn: async () => {
       if (!isAuthenticated) return [];
 
-      const { data } = await api.get<{ data: Reservation[] }>(
+      const { data } = await api.get<{ data: { items: Reservation[] } }>(
         `/rooms/${roomId}/bookings`
       );
 
-      return data.data.map((reservation) => ({
+      const bookings = data.data.items.map((reservation) => ({
         ...reservation,
         start_time: new Date(reservation.start_time),
         end_time: new Date(reservation.end_time),
       }));
+
+      return bookings;
     },
     enabled: !!roomId && !!isAuthenticated,
   });
@@ -59,7 +62,7 @@ export function useRoomBookings(roomId: number) {
     if (query.data) {
       setRoomReservations(query.data);
     }
-  }, [query.data, roomId, setRoomReservations, isAuthenticated]);
+  }, [query.data, setRoomReservations, isAuthenticated]);
 
   return query;
 }
@@ -85,18 +88,19 @@ export function useCreateBooking() {
           end_time: reservationData.end_time.toISOString(),
         }
       );
+
       return {
-        ...data,
+        data,
         start_time: new Date(data.start_time),
         end_time: new Date(data.end_time),
       };
     },
-    onSuccess: (newBooking) => {
+    onSuccess: (newBooking: { data: Reservation }) => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
       queryClient.invalidateQueries({
-        queryKey: ["bookings", "room", newBooking.room_id],
+        queryKey: ["bookings", "room", newBooking.data.room_id],
       });
-      setReservations([...reservations, newBooking]);
+      setReservations([...reservations, newBooking.data]);
     },
     onError: (error: any) => {
       const errorMessage =

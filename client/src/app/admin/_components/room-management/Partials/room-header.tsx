@@ -27,7 +27,6 @@ export function RoomHeader({
     <div className="flex justify-between items-center">
       <h2 className="text-2xl font-semibold">Rooms</h2>
       <div className="flex gap-2">
-        <ExportButton />
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
           <DialogTrigger asChild>
             <Button>

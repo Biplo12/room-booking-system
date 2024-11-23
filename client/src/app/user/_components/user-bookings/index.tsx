@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import { isBefore } from "date-fns";
 import { useBookingStore } from "@/store/bookingStore";
-import { toast } from "sonner";
 import { BookingCard } from "./Partials/booking-card";
 import { useBookings } from "@/hooks/useBookings";
 import { useUserStore } from "@/store/userStore";
@@ -19,7 +18,7 @@ export function UserBookings() {
 
     const filtered = reservations
       .filter((res) => res.user_id === user?.id)
-      .sort((a, b) => a.start_time.getTime() - b.start_time.getTime());
+      .sort((a, b) => a.start_time?.getTime() - b.start_time?.getTime());
 
     const now = new Date();
     return {
@@ -28,7 +27,7 @@ export function UserBookings() {
     };
   }, [reservations, user]);
 
-  if (isLoading) {
+  if (isLoading || !reservations || !user) {
     return (
       <div className="space-y-6">
         <BookingCardSkeleton />

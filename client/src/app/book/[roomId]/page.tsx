@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { BookingCalendar } from "./_components/booking-calendar";
 import { RoomDetails } from "./_components/room-details";
 import { BookingForm } from "./_components/booking-form";
-import { useBookingStore } from "@/store/bookingStore";
 import { usePathname, useRouter } from "next/navigation";
 import { BackButton } from "@/components/back-button";
 import { useRoom } from "@/hooks/useRooms";

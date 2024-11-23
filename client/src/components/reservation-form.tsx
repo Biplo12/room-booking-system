@@ -74,7 +74,7 @@ export function ReservationForm({
         start_time,
         end_time,
         title: values.title,
-        description: values.description || undefined,
+        description: values.description || "",
       });
 
       toast.success("Room booked successfully!");

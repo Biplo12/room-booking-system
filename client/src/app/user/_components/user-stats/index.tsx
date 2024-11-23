@@ -14,10 +14,8 @@ export function UserStats() {
   const { user } = useUserStore();
 
   const stats = useMemo(() => {
-    if (!user) return { total: 0, upcoming: 0, thisMonth: 0 };
-
     const userReservations = reservations.filter(
-      (res) => res.user_id === user.id
+      (res) => res.user_id === user?.id
     );
     const now = new Date();
     const monthStart = startOfMonth(now);
@@ -33,39 +31,41 @@ export function UserStats() {
     };
   }, [reservations, user]);
 
-  if (isLoading) {
+  if (isLoading || !reservations || !user) {
     return <UserStatsSkeleton />;
   }
 
+  const statsCards = [
+    {
+      title: "Total Bookings",
+      subtitle: "All time reservations",
+      value: stats.total,
+    },
+    {
+      title: "Upcoming Bookings",
+      subtitle: "Scheduled meetings",
+      value: stats.upcoming,
+    },
+    {
+      title: "This Month",
+      subtitle: "Monthly usage",
+      value: stats.thisMonth,
+    },
+  ];
+
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.total}</div>
-          <p className="text-xs text-muted-foreground">All time reservations</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Upcoming</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.upcoming}</div>
-          <p className="text-xs text-muted-foreground">Scheduled meetings</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">This Month</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.thisMonth}</div>
-          <p className="text-xs text-muted-foreground">Monthly usage</p>
-        </CardContent>
-      </Card>
+      {statsCards.map((card) => (
+        <Card key={card.title}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{card.value}</div>
+            <p className="text-xs text-muted-foreground">{card.subtitle}</p>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }
