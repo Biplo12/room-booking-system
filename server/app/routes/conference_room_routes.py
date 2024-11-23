@@ -120,7 +120,8 @@ def create_room():
             }), 500
         
 # -------
-@conference_room_bp.route('/<int:room_id>', methods=['GET'])
+@conference_room_bp.route('/rooms/<int:room_id>', methods=['GET'])
+@jwt_required()
 def get_room_by_id(room_id: int):
     """Get a specific conference room by ID."""
     room = ConferenceRoom.query.get(room_id)
@@ -212,6 +213,7 @@ def delete_room(room_id):
 
 # -------
 @conference_room_bp.route('/rooms/<int:room_id>/availability', methods=['GET'])
+@jwt_required()
 def check_availability(room_id):
     with sentry_sdk.start_span(op="http.server", description="check_availability"):
         try:

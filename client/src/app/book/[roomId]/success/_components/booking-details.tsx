@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Reservation } from "@/interfaces";
+import { format } from "date-fns";
 
 interface ReservationDetailsProps {
   reservation: Reservation;
@@ -16,9 +17,26 @@ export function ReservationDetails({ reservation }: ReservationDetailsProps) {
         <div>
           <h3 className="font-medium">Date & Time</h3>
           <p className="text-muted-foreground">
-            {new Date(reservation.start_time).toLocaleDateString()} at{" "}
-            {new Date(reservation.start_time).toLocaleTimeString()} -{" "}
-            {new Date(reservation.end_time).toLocaleTimeString()}
+            {format(
+              typeof reservation.start_time === "string"
+                ? new Date(reservation.start_time)
+                : reservation.start_time,
+              "PPP"
+            )}{" "}
+            <p>at</p>
+            {format(
+              typeof reservation.start_time === "string"
+                ? new Date(reservation.start_time)
+                : reservation.start_time,
+              "p"
+            )}{" "}
+            <p>-</p>
+            {format(
+              typeof reservation.end_time === "string"
+                ? new Date(reservation.end_time)
+                : reservation.end_time,
+              "p"
+            )}
           </p>
         </div>
         {reservation.description && (

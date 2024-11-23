@@ -17,12 +17,9 @@ export default function BookRoom() {
   const pathname = usePathname();
   const roomId = Number(pathname.split("/").pop());
 
-  const { isLoading } = useRoom(roomId);
-  const { rooms } = useBookingStore();
+  const { isLoading, data: selectedRoom } = useRoom(roomId);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-
-  const selectedRoom = rooms.find((r) => r.id === roomId);
 
   useEffect(() => {
     if (!isLoading && !selectedRoom) {
