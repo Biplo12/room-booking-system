@@ -6,13 +6,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { RoomForm } from "./room-form";
-import { FormSchema } from "../types";
 import { Room } from "@/interfaces";
 
 interface EditRoomDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: FormSchema) => void;
+  onSubmit: (values: {
+    name: string;
+    capacity: string;
+    location: string;
+    equipment?: string[];
+    image_url?: string;
+  }) => void;
   room: Room | null;
 }
 
@@ -29,7 +34,7 @@ export function EditRoomDialog({
           <DialogTitle>Edit Room</DialogTitle>
           <DialogDescription>Update the room details below.</DialogDescription>
         </DialogHeader>
-        <RoomForm onSubmit={onSubmit} room={room} />
+        <RoomForm onSubmit={onSubmit} initialData={room} />
       </DialogContent>
     </Dialog>
   );

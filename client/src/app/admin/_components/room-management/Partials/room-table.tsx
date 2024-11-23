@@ -1,10 +1,7 @@
 import { ImageIcon, Edit, Trash } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Room } from "@/interfaces";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useState } from "react";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface RoomTableProps {
   rooms: Room[];
@@ -22,16 +19,22 @@ const HEADERS = [
 ];
 
 export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [imageError, setImageError] = useState(false);
-
-  const handleImageError = () => {
-    setImageError(true);
+  const getEquipmentArray = (equipment: string | string[]) => {
+    return typeof equipment === "string"
+      ? equipment
+          .split(",")
+          .filter(Boolean)
+          .map((item) => item.trim())
+      : Array.isArray(equipment)
+      ? equipment
+      : [];
   };
 
-  const handleImageClick = (imageUrl: string) => {
-    setSelectedImage(imageUrl);
-    setImageError(false);
+  const formatEquipmentName = (name: string) => {
+    return name
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   return (
@@ -52,14 +55,19 @@ export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
               <td className="px-4 py-3">{room.name}</td>
               <td className="px-4 py-3">{room.capacity}</td>
               <td className="px-4 py-3">{room.location}</td>
-              <td className="px-4 py-3">{room.equipment}</td>
+              <td className="px-4 py-3">
+                <div className="flex flex-wrap gap-1">
+                  {getEquipmentArray(room.equipment).map((item) => (
+                    <Badge key={item} variant="secondary">
+                      {formatEquipmentName(item)}
+                    </Badge>
+                  ))}
+                </div>
+              </td>
               <td className="px-4 py-3">
                 <Button
                   variant="ghost"
                   className="h-8 w-8 p-0"
-                  onClick={() =>
-                    room.image_url && handleImageClick(room.image_url)
-                  }
                   disabled={!room.image_url}
                 >
                   <ImageIcon className="h-4 w-4" />
@@ -87,40 +95,6 @@ export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
           ))}
         </tbody>
       </table>
-
-      <Dialog
-        open={!!selectedImage}
-        onOpenChange={() => {
-          setSelectedImage(null);
-          setImageError(false);
-        }}
-      >
-        <DialogTitle />
-        <DialogContent className="max-w-2xl p-2">
-          {selectedImage && (
-            <div className="relative w-full">
-              {!imageError ? (
-                <img
-                  src={selectedImage}
-                  alt="Room"
-                  className="w-full h-auto object-contain max-h-fit"
-                  onError={handleImageError}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center w-full h-full min-h-[300px] bg-muted rounded-lg">
-                  <ImageIcon className="h-8 w-8 text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    Failed to load image
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    The image URL may be invalid or inaccessible
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

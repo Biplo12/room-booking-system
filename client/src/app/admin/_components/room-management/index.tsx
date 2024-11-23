@@ -51,12 +51,14 @@ export function RoomManagement() {
     }
   };
 
-  const onSubmit = async (values: FormSchema) => {
+  const onSubmit = async (values: any) => {
     const roomData = {
       name: values.name,
       capacity: Number(values.capacity),
       location: values.location,
-      equipment: values.equipment || "",
+      equipment: Array.isArray(values.equipment)
+        ? values.equipment.join(",")
+        : values.equipment || "",
       image_url: values.image_url || "",
     };
 

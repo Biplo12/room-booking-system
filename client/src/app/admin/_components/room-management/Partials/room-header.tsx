@@ -9,12 +9,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { RoomForm } from "./room-form";
-import { FormSchema } from "../types";
 
 interface RoomHeaderProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: FormSchema) => void;
+  onSubmit: (values: any) => void;
 }
 
 export function RoomHeader({

@@ -6,14 +6,22 @@ export function ActiveFilters({
   selectedFilters,
   onFilterRemove,
 }: ActiveFiltersProps) {
-  if (!selectedFilters.capacity && !selectedFilters.equipment) return null;
+  if (!selectedFilters.capacity && !selectedFilters.equipment?.length)
+    return null;
 
   const handleFilterRemove = (filterKey: keyof FilterValues) => {
     onFilterRemove(filterKey);
   };
 
+  const formatEquipmentName = (name: string) => {
+    return name
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-2">
       {selectedFilters.capacity && (
         <Badge variant="secondary" className="text-xs py-1.5 rounded-xl">
           Capacity: {selectedFilters.capacity}
@@ -26,17 +34,15 @@ export function ActiveFilters({
         </Badge>
       )}
 
-      {selectedFilters.equipment && (
-        <Badge variant="secondary" className="text-xs py-1.5 rounded-xl">
-          Equipment: {selectedFilters.equipment}
-          <button
-            className="ml-2"
-            onClick={() => handleFilterRemove("equipment")}
-          >
-            <X className="w-4 h-4 text-red-500" />
-          </button>
+      {selectedFilters.equipment?.map((item) => (
+        <Badge
+          key={item}
+          variant="secondary"
+          className="text-xs py-1.5 rounded-xl"
+        >
+          {formatEquipmentName(item)}
         </Badge>
-      )}
+      ))}
     </div>
   );
 }

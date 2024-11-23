@@ -1,6 +1,6 @@
 export interface FilterValues {
   capacity: string;
-  equipment: string;
+  equipment: string[];
 }
 
 export interface SearchBarProps {

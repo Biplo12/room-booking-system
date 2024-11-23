@@ -1,10 +1,9 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -13,34 +12,61 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { FormSchema } from "../types";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { Room } from "@/interfaces";
-import { z } from "zod";
+
+const equipmentOptions = [
+  { label: "Projector", value: "projector" },
+  { label: "Whiteboard", value: "whiteboard" },
+  { label: "Video Conference", value: "video_conference" },
+  { label: "Audio System", value: "audio_system" },
+  { label: "Display Screen", value: "display_screen" },
+];
+
+const formSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  capacity: z.string().min(1, "Capacity is required"),
+  location: z.string().min(1, "Location is required"),
+  equipment: z.array(z.string()).default([]),
+  image_url: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface RoomFormProps {
-  onSubmit: (values: FormSchema) => void;
-  room?: Room | null;
+  initialData?: Room | null;
+  onSubmit: (data: FormValues) => void;
+  isSubmitting?: boolean;
 }
 
-export function RoomForm({ onSubmit, room }: RoomFormProps) {
-  const formSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    capacity: z.coerce.number().min(1, "Capacity must be at least 1"),
-    location: z.string().min(1, "Location is required"),
-    equipment: z.string().optional(),
-    image_url: z.string().optional(),
-  });
-
-  const form = useForm<FormSchema>({
+export function RoomForm({
+  initialData,
+  onSubmit,
+  isSubmitting,
+}: RoomFormProps) {
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: room?.name || "",
-      capacity: Number(room?.capacity) || 0,
-      location: room?.location || "",
-      equipment: room?.equipment || "",
-      image_url: room?.image_url || "",
+      name: initialData?.name || "",
+      capacity: initialData?.capacity?.toString() || "",
+      location: initialData?.location || "",
+      equipment: initialData?.equipment
+        ? typeof initialData.equipment === "string"
+          ? initialData.equipment
+              .split(",")
+              .filter(Boolean)
+              .map((item) => item.trim())
+          : Array.isArray(initialData.equipment)
+          ? initialData.equipment
+          : []
+        : [],
+      image_url: initialData?.image_url || "",
     },
   });
+
+  const formState = form.watch();
 
   return (
     <Form {...form}>
@@ -52,7 +78,7 @@ export function RoomForm({ onSubmit, room }: RoomFormProps) {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Conference Room A" {...field} />
+                <Input placeholder="Room name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -66,13 +92,7 @@ export function RoomForm({ onSubmit, room }: RoomFormProps) {
             <FormItem>
               <FormLabel>Capacity</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  placeholder="10"
-                  {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                  value={field.value}
-                />
+                <Input type="number" placeholder="Room capacity" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -86,7 +106,7 @@ export function RoomForm({ onSubmit, room }: RoomFormProps) {
             <FormItem>
               <FormLabel>Location</FormLabel>
               <FormControl>
-                <Input placeholder="Floor 1, Building A" {...field} />
+                <Input placeholder="Room location" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -100,9 +120,14 @@ export function RoomForm({ onSubmit, room }: RoomFormProps) {
             <FormItem>
               <FormLabel>Equipment</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder="Projector, Whiteboard, Video conferencing"
-                  {...field}
+                <MultiSelect
+                  options={equipmentOptions}
+                  value={field.value || []}
+                  onChange={(newValue) => {
+                    field.onChange(newValue);
+                    console.log("Equipment Changed:", newValue);
+                  }}
+                  placeholder="Select equipment..."
                 />
               </FormControl>
               <FormMessage />
@@ -115,18 +140,22 @@ export function RoomForm({ onSubmit, room }: RoomFormProps) {
           name="image_url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Image URL (optional)</FormLabel>
+              <FormLabel>Image URL</FormLabel>
               <FormControl>
-                <Input placeholder="https://example.com/image.jpg" {...field} />
+                <Input placeholder="Room image URL" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="flex justify-end space-x-2">
-          <Button type="submit">{room ? "Update Room" : "Add Room"}</Button>
-        </div>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting
+            ? "Saving..."
+            : initialData
+            ? "Update Room"
+            : "Create Room"}
+        </Button>
       </form>
     </Form>
   );
