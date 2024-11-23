@@ -9,6 +9,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 import os
 import logging
 from flask_swagger_ui import get_swaggerui_blueprint
+from datetime import timedelta
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,9 +23,16 @@ jwt = JWTManager()
 SWAGGER_URL = "/docs"
 API_URL = "/static/swagger.json"
 
-def create_app(config_class='app.config.DevelopmentConfig'):
+def create_app(config_name=None):
     app = Flask(__name__, static_url_path='/static', static_folder='static')
-    app.config.from_object(config_class)
+    
+    if config_name:
+        app.config.from_object(config_name)
+    else:
+        app.config.from_object('app.config.DevelopmentConfig')
+    
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-secret-key')
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
     
     CORS(app, resources={
         r"/api/*": {

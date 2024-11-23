@@ -1,24 +1,15 @@
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
 import { Reservation } from "@/interfaces";
 import { useBookingStore } from "@/store/bookingStore";
 import { cn } from "@/lib/utils";
-import { CancelBookingDialog } from "./cancel-booking-dialog";
-import { useCanCancel } from "../../../../../hooks/useCanCancel";
 
 interface BookingItemProps {
   booking: Reservation;
   type: "upcoming" | "past";
-  onCancelBooking?: (reservationId: number) => void;
 }
 
-export function BookingItem({
-  booking,
-  type,
-  onCancelBooking,
-}: BookingItemProps) {
+export function BookingItem({ booking, type }: BookingItemProps) {
   const { rooms } = useBookingStore();
-  const canCancel = useCanCancel(booking.start_time);
   const room = rooms.find((r) => r.id === Number(booking.room_id));
 
   return (
@@ -38,17 +29,6 @@ export function BookingItem({
           {format(booking.end_time, "h:mm a")}
         </p>
       </div>
-      {type === "upcoming" &&
-        (canCancel ? (
-          <CancelBookingDialog
-            bookingId={booking.id}
-            onConfirm={onCancelBooking}
-          />
-        ) : (
-          <Button variant="secondary" disabled>
-            Cannot Cancel
-          </Button>
-        ))}
     </div>
   );
 }

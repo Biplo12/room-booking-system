@@ -26,7 +26,10 @@ import { useUserStore } from "@/store/userStore";
 const formSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().optional(),
-  attendees: z.number().min(1, "At least 1 attendee required"),
+  attendees: z.coerce
+    .number()
+    .min(1, "At least 1 attendee is required")
+    .max(50, "Maximum 50 attendees allowed"),
 });
 
 interface ReservationFormProps {
@@ -126,10 +129,13 @@ export function ReservationForm({
               <FormControl>
                 <Input
                   type="number"
-                  min={1}
-                  max={room?.capacity}
                   {...field}
-                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                  onChange={(e) => {
+                    const value = e.target.value === "" ? "0" : e.target.value;
+                    field.onChange(value);
+                  }}
+                  min={1}
+                  max={50}
                 />
               </FormControl>
               <FormMessage />

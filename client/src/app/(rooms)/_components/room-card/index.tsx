@@ -7,7 +7,6 @@ import { useBookingStore } from "@/store/bookingStore";
 import { useUserStore } from "@/store/userStore";
 import { RoomImage } from "./Partials/room-image";
 import { RoomInfo } from "./Partials/room-info";
-import { RoomAvailability } from "./Partials/room-availability";
 
 interface RoomCardProps {
   room: Room;
@@ -37,10 +36,7 @@ export function RoomCard({ room }: RoomCardProps) {
       <RoomImage room={room} />
 
       <div className="p-6 space-y-4">
-        <div>
-          <RoomInfo room={room} />
-          <RoomAvailability todayReservations={todayReservations} />
-        </div>
+        <RoomInfo room={room} />
 
         <Button className="w-full" onClick={handleBookNow}>
           Book Now

@@ -11,6 +11,7 @@ import { useRoom } from "@/hooks/useRooms";
 import { BookingCalendarSkeleton } from "./_components/booking-calendar/booking-calendar-skeleton";
 import { RoomDetailsSkeleton } from "./_components/room-details/room-details-skeleton";
 import { BookingFormSkeleton } from "./_components/booking-form/booking-form-skeleton";
+import { useRoomBookings } from "@/hooks/useBookings";
 
 export default function BookRoom() {
   const router = useRouter();
@@ -18,16 +19,17 @@ export default function BookRoom() {
   const roomId = Number(pathname.split("/").pop());
 
   const { isLoading, data: selectedRoom } = useRoom(roomId);
+  const { isLoading: isBookingsLoading } = useRoomBookings(roomId);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isLoading && !selectedRoom) {
+    if (!isLoading && selectedRoom === null) {
       router.push("/");
     }
   }, [selectedRoom, router, isLoading]);
 
-  if (isLoading) {
+  if (isLoading || isBookingsLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <BackButton />

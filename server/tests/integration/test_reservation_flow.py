@@ -22,6 +22,7 @@ def test_complete_reservation_flow(client, admin_auth_headers, user_auth_headers
     
     availability_response = client.get(
         f'/api/v1/rooms/{room_id}/availability',
+        headers=user_auth_headers,
         query_string={
             'start_time': start_time.isoformat(),
             'end_time': end_time.isoformat()
@@ -45,6 +46,7 @@ def test_complete_reservation_flow(client, admin_auth_headers, user_auth_headers
     # 4. Verify room is no longer available for the same time slot
     availability_response = client.get(
         f'/api/v1/rooms/{room_id}/availability',
+        headers=user_auth_headers,
         query_string={
             'start_time': start_time.isoformat(),
             'end_time': end_time.isoformat()
@@ -52,3 +54,20 @@ def test_complete_reservation_flow(client, admin_auth_headers, user_auth_headers
     )
     assert availability_response.status_code == 200
     assert availability_response.json['data']['is_available'] is False 
+
+def test_get_all_bookings(client, user_auth_headers):
+    response = client.get('/api/v1/bookings', headers=user_auth_headers)
+    assert response.status_code == 200
+    assert response.json['success'] is True
+    assert 'items' in response.json['data']
+
+def test_get_room_bookings(client, user_auth_headers):
+    # First create a room and a booking
+    room_id = 1  # Assuming room exists
+    response = client.get(
+        f'/api/v1/rooms/{room_id}/bookings',
+        headers=user_auth_headers
+    )
+    assert response.status_code == 200
+    assert response.json['success'] is True
+    assert 'items' in response.json['data'] 

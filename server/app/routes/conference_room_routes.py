@@ -34,31 +34,12 @@ def get_rooms():
     with sentry_sdk.start_span(op="http.server", description="get_rooms"):
         try:
             with sentry_sdk.start_span(op="db.query", description="fetch_rooms"):
-                page = request.args.get('page', 1, type=int)
-                per_page = request.args.get('per_page', 10, type=int)
-                
-                per_page = min(per_page, 100)
-                
-                pagination = ConferenceRoom.query.filter_by(is_deleted=False).paginate(
-                    page=page,
-                    per_page=per_page,
-                    error_out=False
-                )
+                rooms = ConferenceRoom.query.filter_by(is_deleted=False).all()
             
             return jsonify({
                 'success': True,
                 'message': 'Rooms retrieved successfully',
-                'data': {
-                    'items': conference_rooms_schema.dump(pagination.items),
-                    'pagination': {
-                        'total_items': pagination.total,
-                        'total_pages': pagination.pages,
-                        'current_page': page,
-                        'per_page': per_page,
-                        'has_next': pagination.has_next,
-                        'has_prev': pagination.has_prev
-                    }
-                }
+                'data': conference_rooms_schema.dump(rooms)
             }), 200
         except Exception as e:
             sentry_sdk.capture_exception(e)
@@ -219,7 +200,7 @@ def check_availability(room_id):
         try:
             start_time = request.args.get('start_time')
             end_time = request.args.get('end_time')
-
+            
             if not start_time or not end_time:
                 return jsonify({
                     'success': False,
@@ -227,32 +208,36 @@ def check_availability(room_id):
                 }), 400
             
             try:
-                start_time = datetime.fromisoformat(sanitize_input(start_time))
-                end_time = datetime.fromisoformat(sanitize_input(end_time))
+                start_time = datetime.fromisoformat(start_time)
+                end_time = datetime.fromisoformat(end_time)
             except ValueError:
                 return jsonify({
                     'success': False,
                     'message': 'Invalid date format'
                 }), 400
-
-            with sentry_sdk.start_span(op="db.query", description="check_conflicts"):
-                conflicts = db.session.query(
-                    db.exists().where(
-                        and_(
-                            Reservation.room_id == room_id,
-                            Reservation.start_time < end_time,
-                            Reservation.end_time > start_time,
-                            Reservation.is_deleted == False
-                        )
-                    )
-                ).scalar()
-
+            
+            room = ConferenceRoom.query.get(room_id)
+            if not room or room.is_deleted:
+                return jsonify({
+                    'success': False,
+                    'message': 'Room not found'
+                }), 404
+            
+            overlapping = Reservation.query.filter(
+                Reservation.room_id == room_id,
+                Reservation.is_deleted == False,
+                Reservation.start_time < end_time,
+                Reservation.end_time > start_time
+            ).first()
+            
             return jsonify({
                 'success': True,
                 'message': 'Availability checked successfully',
-                'data': {'is_available': not conflicts}
+                'data': {
+                    'is_available': overlapping is None
+                }
             }), 200
-
+            
         except Exception as e:
             sentry_sdk.capture_exception(e)
             logger.error(f"Error checking availability: {str(e)}")
@@ -303,6 +288,16 @@ def reserve_room(room_id):
                         'success': False,
                         'message': 'Start time must be before end time'
                     }), 400
+                
+                if db.session.query(Reservation).filter_by(
+                    room_id=room_id,
+                    start_time=start_time,
+                    end_time=end_time
+                ).first():
+                    return jsonify({
+                        'success': False,
+                        'message': 'Time slot already booked'
+                    }), 409
 
             with sentry_sdk.start_span(op="db.query", description="check_conflicts"):
                 conflicts = db.session.query(
@@ -312,9 +307,6 @@ def reserve_room(room_id):
                             Reservation.start_time < end_time,
                             Reservation.end_time > start_time,
                             Reservation.is_deleted == False,
-                            Reservation.user_id == str(user_id),
-                            Reservation.title == title,
-                            Reservation.description == description
                         )
                     )
                 ).scalar()
@@ -361,6 +353,69 @@ def reserve_room(room_id):
                 'message': 'Error creating reservation'
             }), 500
         
+# -------
+@conference_room_bp.route('/bookings', methods=['GET'])
+@jwt_required()
+def get_all_bookings():
+    with sentry_sdk.start_span(op="http.server", description="get_all_bookings"):
+        try:
+            bookings = Reservation.query.filter_by(is_deleted=False).all()
+            
+            return jsonify({
+                'success': True,
+                'message': 'Bookings retrieved successfully',
+                'data': {
+                    'items': [booking.to_dict() for booking in bookings]
+                }
+            }), 200
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            logger.error(f"Error retrieving bookings: {str(e)}")
+            return jsonify({
+                'success': False,
+                'message': 'Error retrieving bookings'
+            }), 500
+
+# -------
+@conference_room_bp.route('/rooms/<int:room_id>/bookings', methods=['GET'])
+@jwt_required()
+def get_room_bookings(room_id):
+    with sentry_sdk.start_span(op="http.server", description="get_room_bookings"):
+        try:
+            start_date = request.args.get('start_date')
+            
+            query = Reservation.query.filter_by(
+                room_id=room_id,
+                is_deleted=False
+            )
+            
+            if start_date:
+                try:
+                    start_date = datetime.fromisoformat(start_date)
+                    query = query.filter(Reservation.start_time >= start_date)
+                except ValueError:
+                    return jsonify({
+                        'success': False,
+                        'message': 'Invalid date format'
+                    }), 400
+            
+            bookings = query.all()
+            booking_list = [booking.to_dict() for booking in bookings]
+            
+            return jsonify({
+                'success': True,
+                'message': 'Room bookings retrieved successfully',
+                'data': {
+                    'items': booking_list
+                }
+            }), 200
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
+            logger.error(f"Error retrieving room bookings: {str(e)}")
+            return jsonify({
+                'success': False,
+                'message': 'Error retrieving room bookings'
+            }), 500
 
 
         

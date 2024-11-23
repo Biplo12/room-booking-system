@@ -10,7 +10,7 @@ import { useUserStore } from "@/store/userStore";
 import { BookingCardSkeleton } from "./Partials/booking-card-skeleton";
 
 export function UserBookings() {
-  const { cancelReservation, reservations } = useBookingStore();
+  const { reservations } = useBookingStore();
   const { user } = useUserStore();
   const { isLoading } = useBookings();
 
@@ -28,11 +28,6 @@ export function UserBookings() {
     };
   }, [reservations, user]);
 
-  const handleCancelReservation = (reservationId: number) => {
-    cancelReservation(reservationId);
-    toast.success("Your booking has been cancelled successfully.");
-  };
-
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -48,7 +43,6 @@ export function UserBookings() {
       description: "Your scheduled room reservations",
       bookings: userReservations.upcoming,
       type: "upcoming",
-      onCancelBooking: handleCancelReservation,
     },
     {
       title: "Past Bookings",
@@ -67,7 +61,6 @@ export function UserBookings() {
           description={card.description}
           bookings={card.bookings}
           type={card.type as "upcoming" | "past"}
-          onCancelBooking={card.onCancelBooking}
         />
       ))}
     </div>

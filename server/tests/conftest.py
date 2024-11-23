@@ -86,4 +86,9 @@ def admin_auth_headers(auth_headers, admin_token):
 def user_auth_headers(auth_headers, user_token):
     headers = auth_headers.copy()
     headers['Authorization'] = f'Bearer {user_token}'
-    return headers 
+    return headers
+
+@pytest.fixture
+def db_session(app):
+    with app.app_context():
+        yield db.session 

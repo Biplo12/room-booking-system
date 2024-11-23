@@ -17,3 +17,14 @@ class Reservation(db.Model):
         db.Index('ix_reservation_room_id', 'room_id'),
         db.Index('ix_reservation_start_time', 'start_time'),
     )
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'room_id': self.room_id,
+            'user_id': self.user_id,
+            'start_time': self.start_time.isoformat(),
+            'end_time': self.end_time.isoformat(),
+            'title': self.title,
+            'description': self.description
+        }

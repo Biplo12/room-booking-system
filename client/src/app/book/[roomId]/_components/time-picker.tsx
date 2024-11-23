@@ -16,37 +16,67 @@ export function TimePicker({
   selectedTime,
   onTimeSelect,
 }: TimePickerProps) {
-  const { reservations } = useBookingStore();
+  const { roomReservations } = useBookingStore();
   const hours = Array.from({ length: 12 }, (_, i) => i + 8); // 8 AM to 8 PM
   const now = new Date();
 
-  const isTimeSlotBooked = (hour: number) => {
-    const currentSlot = new Date(selectedDate);
-    currentSlot.setHours(hour, 0, 0, 0);
-
-    return reservations.some((res) => {
-      try {
-        const resDate =
-          typeof res.start_time === "string"
-            ? parseISO(res.start_time)
-            : res.start_time instanceof Date
-            ? res.start_time
-            : new Date();
-
-        return (
-          format(resDate, "yyyy-MM-dd HH") ===
-          format(currentSlot, "yyyy-MM-dd HH")
-        );
-      } catch (error) {
-        console.error("Invalid date format:", res.start_time);
-        return false;
+  const parseReservationDate = (dateValue: string | Date | undefined) => {
+    if (!dateValue) return null;
+    try {
+      if (dateValue instanceof Date && !isNaN(dateValue.getTime())) {
+        return dateValue;
       }
-    });
+      if (typeof dateValue === "string") {
+        const parsedDate = parseISO(dateValue);
+        return !isNaN(parsedDate.getTime()) ? parsedDate : null;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
+
+  const isTimeSlotBooked = (hour: number) => {
+    try {
+      const currentSlot = setHours(setMinutes(selectedDate, 0), hour);
+      if (isNaN(currentSlot.getTime())) return true;
+
+      return roomReservations.some((res) => {
+        try {
+          const resStart = parseReservationDate(res.start_time);
+          const resEnd = parseReservationDate(res.end_time);
+
+          if (
+            !resStart ||
+            !resEnd ||
+            isNaN(resStart.getTime()) ||
+            isNaN(resEnd.getTime())
+          ) {
+            return false;
+          }
+
+          return (
+            format(currentSlot, "yyyy-MM-dd HH") ===
+              format(resStart, "yyyy-MM-dd HH") ||
+            (currentSlot >= resStart && currentSlot < resEnd)
+          );
+        } catch {
+          return false;
+        }
+      });
+    } catch {
+      return true;
+    }
   };
 
   const isTimeSlotPast = (hour: number) => {
-    const timeSlot = setHours(setMinutes(selectedDate, 0), hour);
-    return isBefore(timeSlot, now);
+    try {
+      const timeSlot = setHours(setMinutes(selectedDate, 0), hour);
+      if (isNaN(timeSlot.getTime())) return true;
+      return isBefore(timeSlot, now);
+    } catch {
+      return true;
+    }
   };
 
   return (
@@ -70,8 +100,7 @@ export function TimePicker({
               disabled={isDisabled}
               className={cn(
                 "p-3 rounded-lg border text-center transition-all",
-                (isBooked || isPast) &&
-                  "bg-muted cursor-not-allowed opacity-50",
+                isDisabled && "bg-muted cursor-not-allowed opacity-50",
                 isSelected &&
                   !isDisabled &&
                   "border-primary bg-primary/10 ring-2 ring-primary ring-offset-2",

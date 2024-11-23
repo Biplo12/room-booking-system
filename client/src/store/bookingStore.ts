@@ -5,44 +5,27 @@ import { create } from "zustand";
 
 interface BookingStore {
   rooms: Room[];
+  selectedRoom: Room | null;
   reservations: Reservation[];
+  roomReservations: Reservation[];
 
   setRooms: (rooms: Room[]) => void;
+  setSelectedRoom: (room: Room | null) => void;
   setReservations: (reservations: Reservation[]) => void;
-  addReservation: (reservation: Reservation) => void;
-  updateRoom: (updatedRoom: Room) => void;
-  deleteRoom: (roomId: number) => void;
-  cancelReservation: (reservationId: number) => void;
+  setRoomReservations: (reservations: Reservation[]) => void;
 }
 
 export const useBookingStore = create<BookingStore>((set) => ({
   rooms: [],
+  selectedRoom: null,
   reservations: [],
+  roomReservations: [],
 
   setRooms: (rooms) => set({ rooms }),
+  setSelectedRoom: (room) => set({ selectedRoom: room }),
   setReservations: (reservations) => set({ reservations }),
-
-  addReservation: (reservation) =>
+  setRoomReservations: (reservations) =>
     set((state) => ({
-      reservations: [...state.reservations, reservation],
-    })),
-
-  updateRoom: (updatedRoom) =>
-    set((state) => ({
-      rooms: state.rooms.map((room) =>
-        room.id === updatedRoom.id ? updatedRoom : room
-      ),
-    })),
-
-  deleteRoom: (roomId) =>
-    set((state) => ({
-      rooms: state.rooms.filter((room) => room.id !== roomId),
-    })),
-
-  cancelReservation: (reservationId) =>
-    set((state) => ({
-      reservations: state.reservations.filter(
-        (r) => r.id !== Number(reservationId)
-      ),
+      roomReservations: reservations,
     })),
 }));

@@ -3,61 +3,70 @@ import { api } from "@/lib/axios";
 import { Reservation } from "@/interfaces";
 import { useBookingStore } from "@/store/bookingStore";
 import { useEffect } from "react";
+import { useUserStore } from "@/store/userStore";
 
 export function useBookings() {
   const { setReservations } = useBookingStore();
-
+  const { isAuthenticated } = useUserStore();
   const query = useQuery({
     queryKey: ["bookings"],
     queryFn: async () => {
-      const { data } = await api.get<Reservation[]>("/bookings");
-      return data.map((reservation) => ({
+      if (!isAuthenticated) return [];
+      const { data } = await api.get<{ data: { items: Reservation[] } }>(
+        "/bookings"
+      );
+      return data.data.items.map((reservation) => ({
         ...reservation,
         start_time: new Date(reservation.start_time),
         end_time: new Date(reservation.end_time),
       }));
     },
+    enabled: !!isAuthenticated,
   });
 
   useEffect(() => {
     if (query.data) {
       setReservations(query.data);
     }
-  }, [query.data, setReservations]);
+  }, [query.data, setReservations, isAuthenticated]);
 
   return query;
 }
 
 export function useRoomBookings(roomId: number) {
-  const { setReservations } = useBookingStore();
+  const { setRoomReservations } = useBookingStore();
+  const { isAuthenticated } = useUserStore();
 
   const query = useQuery({
     queryKey: ["bookings", "room", roomId],
     queryFn: async () => {
-      const { data } = await api.get<Reservation[]>(
+      if (!isAuthenticated) return [];
+
+      const { data } = await api.get<{ data: Reservation[] }>(
         `/rooms/${roomId}/bookings`
       );
-      return data.map((reservation) => ({
+
+      return data.data.map((reservation) => ({
         ...reservation,
         start_time: new Date(reservation.start_time),
         end_time: new Date(reservation.end_time),
       }));
     },
-    enabled: !!roomId,
+    enabled: !!roomId && !!isAuthenticated,
   });
 
   useEffect(() => {
     if (query.data) {
-      setReservations(query.data);
+      setRoomReservations(query.data);
     }
-  }, [query.data, setReservations]);
+  }, [query.data, roomId, setRoomReservations, isAuthenticated]);
 
   return query;
 }
 
 export function useCreateBooking() {
   const queryClient = useQueryClient();
-  const { addReservation } = useBookingStore();
+  const { setReservations, reservations } = useBookingStore();
 
   return useMutation({
     mutationFn: async (bookingData: {
@@ -76,12 +85,18 @@ export function useCreateBooking() {
           end_time: reservationData.end_time.toISOString(),
         }
       );
-      return data;
+      return {
+        ...data,
+        start_time: new Date(data.start_time),
+        end_time: new Date(data.end_time),
+      };
     },
     onSuccess: (newBooking) => {
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
-      queryClient.invalidateQueries({ queryKey: ["bookings", "room"] });
-      addReservation(newBooking);
+      queryClient.invalidateQueries({
+        queryKey: ["bookings", "room", newBooking.room_id],
+      });
+      setReservations([...reservations, newBooking]);
     },
     onError: (error: any) => {
       const errorMessage =

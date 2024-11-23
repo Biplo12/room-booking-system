@@ -1,4 +1,5 @@
 import json
+from flask_jwt_extended import create_access_token
 from app.routes.auth_routes import validate_password
 
 def test_validate_password_valid():
@@ -117,4 +118,66 @@ def test_check_admin_regular_user(client, user_auth_headers):
 
 def test_check_admin_unauthorized(client):
     response = client.get('/api/v1/auth/check-admin')
-    assert response.status_code == 401 
+    assert response.status_code == 401
+
+def test_verify_token_user_not_found(client, auth_headers):
+    """Test verify token when user doesn't exist"""
+
+    token = create_access_token(identity=999)
+    headers = auth_headers.copy()
+    headers['Authorization'] = f'Bearer {token}'
+    
+    response = client.get('/api/v1/auth/verify', headers=headers)
+    assert response.status_code == 404
+    assert response.json['success'] is False
+    assert 'User not found' in response.json['message']
+
+def test_verify_token_error(client, auth_headers, monkeypatch):
+    """Test verify token with database error"""
+    data = {
+        "username": "testuser",
+        "password": "Test123!@#"
+    }
+    client.post('/api/v1/auth/register',
+                headers=auth_headers,
+                data=json.dumps(data))
+    
+    def mock_get(*args, **kwargs):
+        raise Exception("Database error")
+    
+    monkeypatch.setattr("app.models.user.User.query", 
+                       type('Query', (), {'get': mock_get}))
+    
+    token = create_access_token(identity=1)
+    headers = auth_headers.copy()
+    headers['Authorization'] = f'Bearer {token}'
+    
+    response = client.get('/api/v1/auth/verify', headers=headers)
+    assert response.status_code == 500
+    assert response.json['success'] is False
+    assert 'Error verifying token' in response.json['message']
+
+def test_check_admin_error(client, auth_headers, monkeypatch):
+    """Test check admin with database error"""
+    data = {
+        "username": "testuser",
+        "password": "Test123!@#"
+    }
+    client.post('/api/v1/auth/register',
+                headers=auth_headers,
+                data=json.dumps(data))
+    
+    def mock_get(*args, **kwargs):
+        raise Exception("Database error")
+    
+    monkeypatch.setattr("app.models.user.User.query", 
+                       type('Query', (), {'get': mock_get}))
+    
+    token = create_access_token(identity=1)
+    headers = auth_headers.copy()
+    headers['Authorization'] = f'Bearer {token}'
+    
+    response = client.get('/api/v1/auth/check-admin', headers=headers)
+    assert response.status_code == 500
+    assert response.json['success'] is False
+    assert 'Error checking admin status' in response.json['message'] 

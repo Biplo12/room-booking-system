@@ -3,6 +3,7 @@ import { api } from "@/lib/axios";
 import { Room } from "@/interfaces";
 import { useBookingStore } from "@/store/bookingStore";
 import { useEffect } from "react";
+import { useUserStore } from "@/store/userStore";
 
 export function useRooms() {
   const { setRooms } = useBookingStore();
@@ -18,7 +19,7 @@ export function useRooms() {
 
   useEffect(() => {
     if (query.data) {
-      const rooms = query.data.data.items;
+      const rooms = query.data.data;
       setRooms(rooms);
     }
   }, [query.data, setRooms]);
@@ -27,23 +28,32 @@ export function useRooms() {
 }
 
 export function useRoom(roomId: number) {
-  const { updateRoom } = useBookingStore();
+  const { setSelectedRoom } = useBookingStore();
+  const { isAuthenticated } = useUserStore();
 
   const query = useQuery({
     queryKey: ["rooms", roomId],
     queryFn: async () => {
-      const { data } = await api.get<Room>(`/rooms/${roomId}`);
+      try {
+        if (!isAuthenticated) return null;
 
-      return data;
+        const { data } = await api.get<Room>(`/rooms/${roomId}`);
+
+        return data;
+      } catch (error) {
+        return null;
+      }
     },
-    enabled: !!roomId,
+    enabled: !!roomId && !!isAuthenticated,
   });
 
   useEffect(() => {
     if (query.data) {
-      updateRoom(query.data);
+      setSelectedRoom(query.data);
+    } else {
+      setSelectedRoom(null);
     }
-  }, [query.data, updateRoom]);
+  }, [query.data, setSelectedRoom, isAuthenticated]);
 
   return query;
 }
@@ -71,7 +81,7 @@ export function useCreateRoom() {
 
 export function useUpdateRoom() {
   const queryClient = useQueryClient();
-  const { updateRoom } = useBookingStore();
+  const { setRoomReservations } = useBookingStore();
 
   return useMutation({
     mutationFn: async ({ id, ...roomData }: Room) => {
@@ -80,15 +90,13 @@ export function useUpdateRoom() {
     },
     onSuccess: (updatedRoom) => {
       queryClient.invalidateQueries({ queryKey: ["rooms"] });
-
-      updateRoom(updatedRoom);
     },
   });
 }
 
 export function useDeleteRoom() {
   const queryClient = useQueryClient();
-  const { deleteRoom } = useBookingStore();
+  const { setRoomReservations } = useBookingStore();
 
   return useMutation({
     mutationFn: async (roomId: number) => {
@@ -97,8 +105,6 @@ export function useDeleteRoom() {
     },
     onSuccess: (roomId) => {
       queryClient.invalidateQueries({ queryKey: ["rooms"] });
-
-      deleteRoom(roomId);
     },
   });
 }

@@ -7,14 +7,13 @@ import {
 } from "@/components/ui/card";
 import { Reservation } from "@/interfaces";
 import { EmptyState } from "@/components/empty-state";
-import { BookingList } from "./booking-list";
+import { BookingItem } from "./booking-item";
 
 interface BookingCardProps {
   title: string;
   description: string;
   bookings: Reservation[];
   type: "upcoming" | "past";
-  onCancelBooking?: (reservationId: number) => void;
 }
 
 export function BookingCard({
@@ -22,7 +21,6 @@ export function BookingCard({
   description,
   bookings,
   type,
-  onCancelBooking,
 }: BookingCardProps) {
   return (
     <Card>
@@ -38,11 +36,11 @@ export function BookingCard({
             icon="Calendar"
           />
         ) : (
-          <BookingList
-            bookings={bookings}
-            type={type}
-            onCancelBooking={onCancelBooking}
-          />
+          <div className="space-y-4">
+            {bookings.map((booking) => (
+              <BookingItem key={booking.id} booking={booking} type={type} />
+            ))}
+          </div>
         )}
       </CardContent>
     </Card>
