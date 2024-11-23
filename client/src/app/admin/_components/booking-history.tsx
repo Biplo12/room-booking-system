@@ -5,6 +5,14 @@ import { EmptyState } from "@/components/empty-state";
 import { useBookings } from "@/hooks/useBookings";
 import { useBookingStore } from "@/store/bookingStore";
 import { BookingHistorySkeleton } from "./booking-history-skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const HEADERS = ["Room", "User", "Date", "Time", "Status"];
 
@@ -32,37 +40,33 @@ export function BookingHistory() {
     <div className="space-y-6">
       <h2 className="text-2xl font-semibold">Booking History</h2>
       <div className="border rounded-lg">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
+        <Table>
+          <TableHeader>
+            <TableRow>
               {HEADERS.map((header) => (
-                <th key={header} className="px-4 py-3 text-left">
-                  {header}
-                </th>
+                <TableHead key={header}>{header}</TableHead>
               ))}
-            </tr>
-          </thead>
-          <tbody>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {reservations.map((reservation) => (
-              <tr key={reservation.id} className="border-b">
-                <td className="px-4 py-3">{reservation.room_id}</td>
-                <td className="px-4 py-3">{reservation.user_id}</td>
-                <td className="px-4 py-3">
-                  {format(reservation.start_time, "PPP")}
-                </td>
-                <td className="px-4 py-3">
+              <TableRow key={reservation.id}>
+                <TableCell>{reservation.room_id}</TableCell>
+                <TableCell>{reservation.user_id}</TableCell>
+                <TableCell>{format(reservation.start_time, "PPP")}</TableCell>
+                <TableCell>
                   {format(reservation.start_time, "p")} -{" "}
                   {format(reservation.end_time, "p")}
-                </td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell>
                   <span className="px-2 py-1 text-xs rounded-full bg-green-500/10 text-green-500">
                     Confirmed
                   </span>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

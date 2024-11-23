@@ -1,4 +1,16 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+const NUM_SKELETONS = 4;
+
+const HEADERS = ["Name", "Capacity", "Location", "Equipment", "Actions"];
 
 export function RoomManagementSkeleton() {
   return (
@@ -10,43 +22,39 @@ export function RoomManagementSkeleton() {
         </div>
       </div>
       <div className="border rounded-lg">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              {["Name", "Capacity", "Location", "Equipment", "Actions"].map(
-                (header) => (
-                  <th key={header} className="px-4 py-3 text-left">
-                    {header}
-                  </th>
-                )
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <tr key={i} className="border-b">
-                <td className="px-4 py-3">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {HEADERS.map((header) => (
+                <TableHead key={header}>{header}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array.from({ length: NUM_SKELETONS }).map((_, i) => (
+              <TableRow key={i}>
+                <TableCell>
                   <Skeleton className="h-4 w-32" />
-                </td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell>
                   <Skeleton className="h-4 w-16" />
-                </td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell>
                   <Skeleton className="h-4 w-24" />
-                </td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell>
                   <Skeleton className="h-4 w-40" />
-                </td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell>
                   <div className="flex space-x-2">
                     <Skeleton className="h-8 w-8" />
                     <Skeleton className="h-8 w-8" />
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

@@ -13,8 +13,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { FormSchema, formSchema } from "../types";
+import { FormSchema } from "../types";
 import { Room } from "@/interfaces";
+import { z } from "zod";
 
 interface RoomFormProps {
   onSubmit: (values: FormSchema) => void;
@@ -22,6 +23,14 @@ interface RoomFormProps {
 }
 
 export function RoomForm({ onSubmit, room }: RoomFormProps) {
+  const formSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    capacity: z.coerce.number().min(1, "Capacity must be at least 1"),
+    location: z.string().min(1, "Location is required"),
+    equipment: z.string().optional(),
+    image_url: z.string().optional(),
+  });
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {

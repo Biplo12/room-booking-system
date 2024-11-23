@@ -19,13 +19,13 @@ import { useBookingStore } from "@/store/bookingStore";
 import { RoomManagementSkeleton } from "./room-management-skeleton";
 
 export function RoomManagement() {
-  const { rooms } = useBookingStore();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [roomToEdit, setRoomToEdit] = useState<Room | null>(null);
   const [roomToDelete, setRoomToDelete] = useState<Room | null>(null);
 
   const { isLoading, error } = useRooms();
+  const { rooms } = useBookingStore();
   const createRoom = useCreateRoom();
   const updateRoom = useUpdateRoom();
   const deleteRoom = useDeleteRoom();

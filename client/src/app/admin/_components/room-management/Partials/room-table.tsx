@@ -1,9 +1,10 @@
-import { Building2, Pencil, Trash2, Image, Edit, Trash } from "lucide-react";
+import { ImageIcon, Edit, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Room } from "@/interfaces";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import Image from "next/image";
 
 interface RoomTableProps {
   rooms: Room[];
@@ -22,6 +23,16 @@ const HEADERS = [
 
 export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  const handleImageClick = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
+    setImageError(false);
+  };
 
   return (
     <div className="border rounded-lg">
@@ -46,10 +57,12 @@ export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
                 <Button
                   variant="ghost"
                   className="h-8 w-8 p-0"
-                  onClick={() => setSelectedImage(room.image_url)}
+                  onClick={() =>
+                    room.image_url && handleImageClick(room.image_url)
+                  }
                   disabled={!room.image_url}
                 >
-                  <Image className="h-4 w-4" />
+                  <ImageIcon className="h-4 w-4" />
                 </Button>
               </td>
               <td className="px-4 py-3">
@@ -77,12 +90,34 @@ export function RoomTable({ rooms, onEdit, onDelete }: RoomTableProps) {
 
       <Dialog
         open={!!selectedImage}
-        onOpenChange={() => setSelectedImage(null)}
+        onOpenChange={() => {
+          setSelectedImage(null);
+          setImageError(false);
+        }}
       >
         <DialogTitle />
-        <DialogContent className="max-w-3xl p-0">
+        <DialogContent className="max-w-2xl p-2">
           {selectedImage && (
-            <img src={selectedImage} alt="Room" className="w-full h-auto" />
+            <div className="relative w-full">
+              {!imageError ? (
+                <img
+                  src={selectedImage}
+                  alt="Room"
+                  className="w-full h-auto object-contain max-h-fit"
+                  onError={handleImageError}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center w-full h-full min-h-[300px] bg-muted rounded-lg">
+                  <ImageIcon className="h-8 w-8 text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Failed to load image
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    The image URL may be invalid or inaccessible
+                  </p>
+                </div>
+              )}
+            </div>
           )}
         </DialogContent>
       </Dialog>

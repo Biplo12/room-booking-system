@@ -8,6 +8,8 @@ import { useRooms } from "@/hooks/useRooms";
 import { useBookings } from "@/hooks/useBookings";
 import { StatsOverviewSkeleton } from "./Partials/stats-overview-skeleton";
 import { BookingTrendsSkeleton } from "./Partials/booking-trends-skeleton";
+import { RoomUsageReport } from "./Partials/room-usage-report";
+import { ExportButton } from "../export-button";
 
 export function Analytics() {
   const { isLoading: roomsLoading } = useRooms();
@@ -19,7 +21,10 @@ export function Analytics() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h2 className="text-2xl font-semibold">Analytics</h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-semibold">Analytics</h2>
+          <ExportButton />
+        </div>
         <StatsOverviewSkeleton />
         <BookingTrendsSkeleton />
       </div>
@@ -38,9 +43,15 @@ export function Analytics() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Analytics</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-semibold">Analytics</h2>
+        <ExportButton />
+      </div>
       <StatsOverview />
-      <BookingTrends />
+      <div className="grid gap-6 grid-cols-1">
+        <BookingTrends />
+        <RoomUsageReport />
+      </div>
     </div>
   );
 }

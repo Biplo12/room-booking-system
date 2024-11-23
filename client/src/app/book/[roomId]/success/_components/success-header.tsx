@@ -8,8 +8,8 @@ export function SuccessHeader() {
       </div>
       <h1 className="text-3xl font-bold mb-4">Reservation Confirmed!</h1>
       <p className="text-muted-foreground mb-8">
-        Your room has been successfully booked. You can download the booking
-        details by clicking the button below.
+        Your room has been successfully booked. You can view your bookings by
+        clicking the button below.
       </p>
     </>
   );

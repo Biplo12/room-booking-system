@@ -25,12 +25,6 @@ export function RoomCard({ room }: RoomCardProps) {
     }
   };
 
-  const todayReservations = reservations.filter(
-    (res) =>
-      Number(res.room_id) === Number(room.id) &&
-      new Date(res.start_time).toDateString() === new Date().toDateString()
-  ).length;
-
   return (
     <div className="group rounded-lg border bg-card overflow-hidden transition-all hover:border-primary/50 hover:shadow-lg">
       <RoomImage room={room} />

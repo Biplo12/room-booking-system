@@ -16,12 +16,10 @@ export function BookRoom() {
   const roomId = Number(pathname.split("/").pop());
 
   const { isLoading } = useRoom(roomId);
-  const { rooms } = useBookingStore();
+  const { rooms, selectedRoom } = useBookingStore();
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-
-  const selectedRoom = rooms.find((r) => r.id === roomId);
 
   useEffect(() => {
     if (!isLoading && !selectedRoom) {

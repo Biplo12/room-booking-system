@@ -53,7 +53,7 @@ export function ReservationForm({
     defaultValues: {
       title: "",
       description: "",
-      attendees: 1,
+      attendees: room.capacity,
     },
   });
 
@@ -69,6 +69,11 @@ export function ReservationForm({
       const end_time = new Date(start_time);
       end_time.setHours(start_time.getHours() + 1);
 
+      if (values.attendees > room.capacity) {
+        toast.error("Number of attendees exceeds room capacity.");
+        return;
+      }
+
       await createBooking.mutateAsync({
         room_id: room.id,
         start_time,
@@ -77,8 +82,8 @@ export function ReservationForm({
         description: values.description || "",
       });
 
-      toast.success("Room booked successfully!");
       router.push(`/book/${room.id}/success`);
+      toast.success("Room booked successfully!");
     } catch (error: any) {
       toast.error(
         error.message || "Failed to book the room. Please try again."
